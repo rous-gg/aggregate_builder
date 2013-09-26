@@ -1,0 +1,3 @@
+module AggregateBuilder
+  VERSION = "0.0.1"
+end
