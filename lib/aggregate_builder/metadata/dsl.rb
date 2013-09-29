@@ -13,7 +13,7 @@ module AggregateBuilder
       end
 
       def field(field_name, field_options = {}, &block)
-        @rules.add_field(field_name, options, &block)
+        @rules.add_field(field_name, field_options, &block)
       end
 
       def build_children(child_name, options = {}, &block)
@@ -32,14 +32,14 @@ module AggregateBuilder
       def search_key(key, &block)
         @rules.search_key = key
         if block_given?
-          @rules.search_key_block = &block
+          @rules.search_key_block(&block)
         end
       end
 
-      def delete_term(term, &block)
-        @rules.delete_term = term
+      def delete_key(term, &block)
+        @rules.delete_key = term
         if block_given?
-          @rules.delete_term_block = &block
+          @rules.delete_key_block(&block)
         end
       end
 

@@ -1,10 +1,13 @@
-# Builder rules definition class
 module AggregateBuilder
   module Metadata
     class BuilderRules
-      attr_reader :fields_collection
-      attr_accessor :delete_term_block
-      attr_accessor :search_key_term
+      attr_accessor :root_class
+      attr_accessor :search_key_block
+      attr_accessor :search_key
+      attr_accessor :delete_key
+      attr_accessor :delete_key_block
+      attr_reader   :fields_collection
+      attr_accessor :unmapped_fields_error_level
 
       CALLBACKS = [:before, :after]
       UNMAPPED_FIELDS_ERROR_LEVELS = [:silent, :warn, :error]
@@ -34,22 +37,22 @@ module AggregateBuilder
         @unmapped_fields_error_level = level
       end
 
-      def delete_term=(term)
+      def delete_key=(term)
         raise ArgumentError, "Delete term should be a symbol" unless term.is_a?(Symbol)
       end
 
-      def delete_term_block=(&block)
+      def delete_key_block(&block)
         raise ArgumentError, "You should provide block" unless block_given?
-        @delete_term_block = &block
+        @delete_key_block = block
       end
 
       def search_key=(key)
         raise ArgumentError, "Search key should be a symbol" unless key.is_a?(Symbol)
       end
 
-      def search_key_block=(&block)
+      def search_key_block(&block)
         raise ArgumentError, "You should provide block" unless block_given?
-        @search_key_block = &block
+        @search_key_block = block
       end
 
       def check_attributes(attributes)
@@ -59,7 +62,7 @@ module AggregateBuilder
           if !unmapped_keys.empty?
             if warn_level?
               p "WARNING: Builder does not accept the following attributes #{unmapped_keys.join(', ')}"
-            elsif
+            else
             end
           end
         end

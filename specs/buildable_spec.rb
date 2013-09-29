@@ -24,17 +24,44 @@ describe AggregateBuilder::Buildable do
     end
   end
 
+  context "Set root class" do
+    it "should set specified root class" do
+      class TestBuilder
+        include AggregateBuilder::Buildable
 
-  context "build rules" do
-    it "should raise error if no root class was specified and it was not found automatically" do
+        build_rules_for Contact do
+        end
+      end
+
+      rules = TestBuilder.send(:builder_rules)
+      rules.root_class.should == Contact
+    end
+
+    it "should properly define root class from aggregate name" do
+      class ContactBuilder
+        include AggregateBuilder::Buildable
+
+        build_rules do
+        end
+      end
+
+      rules = TestBuilder.send(:builder_rules)
+      rules.root_class.should == Contact
+    end
+
+    it "should raise error when root class was not defined" do
       expect do
-        class TestBuilderWithoutNameByConvention
+        class TestFactory
+          include AggregateBuilder::Buildable
+
           build_rules do
           end
         end
-      end.to_raise error(AggregateBuilder::Errors::UndefinedRootClassError)
+      end.to raise_error(AggregateBuilder::Errors::UndefinedRootClassError)
     end
+  end
 
+  context "build rules" do
     class TestBuilderWithoutNameByConvention
       include AggregateBuilder::Buildable
 
@@ -45,11 +72,11 @@ describe AggregateBuilder::Buildable do
           end
         end
 
-        delete_term :_destroy do |value|
+        delete_key :_destroy do |value|
           ['1', 'true'].include?(value)
         end
 
-        unmapped_fields_error_level :warn, :error, :silent
+        unmapped_fields_error_level :warn#, :error, :silent
 
         fields :first_name, :last_name, required: true
         field  :rating, type: :integer, required: true
@@ -63,58 +90,6 @@ describe AggregateBuilder::Buildable do
           (attributes['company'] || {})['name']
         end
       end
-    end
-
-    it "should raise missing required fields error when required fields are missing" do
-    end
-  end
-
-  attributes['first_name'] == nil
-
-
-  context "Assign root attributes" do
-    class TestAggregateBuilder
-      build_rules_for AggregateRoot do
-        field :string_value
-        field :integer_value, type: :integer
-        field :date_value, type: :date
-        field :boolean_value, type: :boolean
-        field :float_value, type: :float
-        field :time_value, type: :time
-        field :custom_value do
-          attributes
-        end
-      end
-    end
-
-    subject do
-      root_attributes = {
-        string_value: 'string',
-        integer_value: '1',
-        date_value: '2013/09/13',
-        boolean_value: 'true',
-        float_value: '2.133',
-        time_value: '2013/09/13 12:57',
-        custom_value: 'custom'
-      }
-      builder = TestAggregateBuilder.new
-      builder.build(nil, root_attributes)
-    end
-
-    its(:string_value) { should  == 'string' }
-    its(:integer_value) { should  == 1 }
-    its(:date_value) { should    == Date.parse('2013/09/13') }
-    its(:boolean_value) { should == true }
-    its(:float_value) { should   == 2.133 }
-    its(:time) { value.should    == Time.new('2013/09/13 12:57') }
-    its(:custom_value) { should  == 'custom' }
-  end
-
-  context "Assign children attributes" do
-    subject do
-      attributes = {
-        string_value: 'string'
-      }
     end
   end
 end

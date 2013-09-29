@@ -12,8 +12,6 @@ module AggregateBuilder
         raise ArgumentError, "You should provide symbolized name for #{field_name}" unless field_name.is_a?(Symbol)
         @field_name       = field_name
         @options          = options
-        @aliases          = extract_aliases(options)
-        @cleaner_type     = extract_cleaner_type(options)
         @value_processor  = value_processor
       end
 
@@ -47,7 +45,7 @@ module AggregateBuilder
         end
       end
 
-      def extract_aliases
+      def extract_aliases(options)
         if options[:aliases].is_a?(Array) && options[:aliases].all? {|a| a.is_a?(Symbol)}
           options[:aliases]
         else
