@@ -49,13 +49,14 @@ module AggregateBuilder
     def build(entity_or_nil, attributes, &block)
       raise ArgumentError, "Attributes should be a hash" unless attributes.is_a?(Hash)
 
+      attributes = attributes.dup
       (entity_or_nil || builder_rules.root_class.new).tap do |entity|
-        #attributes = prepare_attributes(entity, attributes)
-        #check_attributes(attributes)
-        #run_before_build_callbacks(entity, attributes)
-        #set_attributes(entity, attributes)
-        #build_nested_associations(entity, attributes)
-        #run_after_build_callbacks
+        prepare_attributes(entity, attributes)
+        processed_attributes = process_attributes(attributes, entity)
+        run_before_build_callbacks(entity)
+        set_attributes(entity, processed_attributes)
+        build_nested_associations(entity, attributes)
+        run_after_build_callbacks(entity)
       end
     end
 
@@ -65,24 +66,33 @@ module AggregateBuilder
 
     private
 
-    def prepare_attributes(attributes)
-      attributes
+    def run_before_build_callbacks(entity)
     end
 
-    def set_attributes(entity, attributes)
+    def run_after_build_callbacks(entity)
+    end
+
+    def prepare_attributes(entity, attributes)
+      #XXX: add any custom processing of attributes
+    end
+
+    def process_attributes(attributes, entity)
+      processor = AttributesProcessor.new(builder_rules, self)
+      processor.process(attributes, entity)
+    end
+
+    def set_attributes(entity, processed_attributes)
       builder_rules.fields_collection.each do |field|
-        value = get_value
-        field.aliases
-        clean_value()
-        if field.required?
-        end
-        if field.allow_nil?
-        end
+        entity.send("#{field.field_name}=", processed_attributes[field.field_name])
       end
     end
 
+    def build_nested_associations(entity, attributes)
+      # TODO: add nested processing here
+    end
+
     def builder_rules
-      self.class.class_variable_get(:@@builder_rules)
+      @builder_rules ||= self.class.class_variable_get(:@@builder_rules)
     end
   end
 end

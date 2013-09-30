@@ -1,5 +1,14 @@
 require "aggregate_builder/version"
 require "aggregate_builder/errors"
+
+require "aggregate_builder/type_casters/string_caster"
+require "aggregate_builder/type_casters/boolean_caster"
+require "aggregate_builder/type_casters/float_caster"
+require "aggregate_builder/type_casters/date_caster"
+require "aggregate_builder/type_casters/integer_caster"
+require "aggregate_builder/type_casters/time_caster"
+
+require "aggregate_builder/attributes_processor"
 require "aggregate_builder/buildable"
 require "aggregate_builder/metadata/field_metadata"
 require "aggregate_builder/metadata/fields_collection"

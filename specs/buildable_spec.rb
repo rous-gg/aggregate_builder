@@ -15,8 +15,8 @@ describe AggregateBuilder::Buildable do
       COMPANY = 1
     end
 
-    attr_accessor :first_name, :last_name, :type_id, :date_of_birth, :private,
-                  :rating, :created_at, :company_name
+    attr_accessor :first_name, :last_name, :type_id, :date_of_birth, :is_private,
+                  :rating, :average_rating, :created_at, :company_name
 
     def initialize
       @emails  = Emails.new
@@ -61,35 +61,68 @@ describe AggregateBuilder::Buildable do
     end
   end
 
-  context "build rules" do
-    class TestBuilderWithoutNameByConvention
+  context "Assign attributes" do
+    class FullContactBuilder
       include AggregateBuilder::Buildable
 
       build_rules_for Contact do
-        search_key :id do |entity_key, key|
-          if key.present?
-            entity_key == key.to_s.to_i
+        #config do
+          search_key :id do |entity_key, key|
+            if key.present?
+              entity_key == key.to_s.to_i
+            end
           end
-        end
 
-        delete_key :_destroy do |value|
-          ['1', 'true'].include?(value)
-        end
+          delete_key :_destroy do |value|
+            ['1', 'true'].include?(value)
+          end
 
-        unmapped_fields_error_level :warn#, :error, :silent
+          unmapped_fields_error_level :warn#, :error, :silent
+        #end
 
         fields :first_name, :last_name, required: true
         field  :rating, type: :integer, required: true
+        field  :average_rating, type: :float
         field  :date_of_birth, type: :date
         field  :type_id, type: :integer, required: true
-        field  :private, type: :boolean do |private_flag|
-          private_flag == '0' ? false : true
+        field  :is_private, type: :boolean
+        field  :created_at, type: :time
+        field  :company_name do |entity, attributes|
+          'John Doe Inc.'
         end
-        field  :created_at, type: Time
-        field  :company_name, required: true do
-          (attributes['company'] || {})['name']
+
+        before_build do |entity|
+        end
+
+        after_build do |entity|
         end
       end
     end
+
+    subject do
+      attributes = {
+        first_name: 'John',
+        last_name: 'Doe',
+        rating: 10,
+        average_rating: '2.1',
+        date_of_birth: '12/09/1965',
+        type_id: 3,
+        is_private: true,
+        created_at: "2013-09-30 08:58:28 +0400"
+      }
+
+      builder = FullContactBuilder.new
+      builder.build(nil, attributes)
+    end
+
+    its(:first_name)      { should == 'John' }
+    its(:last_name)       { should == 'Doe' }
+    its(:rating)          { should == 10 }
+    its(:average_rating)  { should == 2.1 }
+    its(:date_of_birth)   { should == Date.parse('12/09/1965') }
+    its(:type_id)         { should == 3 }
+    its(:is_private)      { should == true }
+    its(:created_at)      { should == Time.new("2013-09-30 08:58:28 +0400") }
+    its(:company_name)    { should == 'John Doe Inc.' }
   end
 end

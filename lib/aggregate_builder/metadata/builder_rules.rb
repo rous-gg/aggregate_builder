@@ -15,7 +15,7 @@ module AggregateBuilder
       def initialize
         @fields_collection           = FieldsCollection.new
         @children_rules              = ChildrenRules.new
-        @callbacks                   = CallbacksCollection.new
+        #@callbacks                   = CallbacksCollection.new
         @unmapped_fields_error_level = :silent
       end
 
@@ -23,7 +23,7 @@ module AggregateBuilder
         raise ArgumentError, "You should provide symbol" unless field_name.is_a?(Symbol)
         field = @fields_collection.find(field_name)
         @fields_collection.delete(field) if field
-        @fields_collection << FieldMetadata.new(field_name, options, &block)
+        @fields_collection << FieldMetadata.new(field_name, options, block)
       end
 
       def add_children(association_name, options = {}, &block)
@@ -33,6 +33,7 @@ module AggregateBuilder
       end
 
       def add_callback(callback_type, method_name = nil, &block)
+        return
         if !method_name.nil? && !method_name.is_a?(Symbol)
           raise ArgumentError, "Callback method name should be a symbol" unless method_name.is_a?(Symbol)
         end
@@ -66,27 +67,8 @@ module AggregateBuilder
         @unmapped_fields_error_level = level
       end
 
-      def check_attributes(attributes)
-        if warn_level? || error_level?
-          unmapped_keys = extract_unmapped_keys(attributes)
-          extract_incorrect_type
-          if !unmapped_keys.empty?
-            if warn_level?
-              p "WARNING: Builder does not accept the following attributes #{unmapped_keys.join(', ')}"
-            else
-            end
-          end
-        end
-      end
-
-      private
-
-      def extract_unmapped_keys(attributes)
-        attributes.keys.map(&:to_sym) - field_keys_with_aliases
-      end
-
-      def field_keys_with_aliases
-        @fields_collection.map(&:field_name) + @fields_collection.map(&:aliases).flatten
+      def silent_level?
+        @unmapped_fields_error_level == :silent
       end
 
       def warn_level?
