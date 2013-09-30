@@ -20,7 +20,13 @@ module AggregateBuilder
 
           if children_or_child.respond_to?(:each)
             if !(association_attributes.is_a?(Array) && association_attributes.all? {|a| a.is_a?(Hash)})
-              raise Errors::AssociationParamsError, "You should provide array of hashes for #{child_metadata.child_name}"
+              if @builder_rules.warn_level?
+                p "WARNING: You should provide array of hashes for #{child_metadata.child_name}"
+              elsif @builder_rules.error_level?
+                raise Errors::AssociationParamsError, "You should provide array of hashes for #{child_metadata.child_name}"
+              else
+                next
+              end
             end
             association_attributes.each do |attrs|
               child = find_child(children_or_child, attrs)
@@ -36,7 +42,13 @@ module AggregateBuilder
             end
           else
             if !association_attributes.is_a?(Hash)
-              raise Errors::AssociationParamsError, "You should provide hash for #{child_metadata.child_name}"
+              if @builder_rules.warn_level?
+                p "WARNING: You should provide hash for #{child_metadata.child_name}"
+              elsif @builder_rules.error_level?
+                raise Errors::AssociationParamsError, "You should provide hash for #{child_metadata.child_name}"
+              else
+                next
+              end
             end
             if should_delete?(child_metadata, association_attributes)
               entity.send("#{child_metadata.child_name}=", nil)

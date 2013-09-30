@@ -99,11 +99,11 @@ describe AggregateBuilder::Buildable do
           unmapped_fields_error_level :warn#, :error, :silent
         end
 
-        fields :first_name, :last_name, required: true
-        field  :rating, type: :integer, required: true
+        fields :first_name, :last_name
+        field  :rating, type: :integer
         field  :average_rating, type: :float
         field  :date_of_birth, type: :date
-        field  :type_id, type: :integer, required: true
+        field  :type_id, type: :integer
         field  :is_private, type: :boolean
         field  :created_at, type: :time
         field  :company_name do |entity, attributes|
@@ -215,16 +215,19 @@ describe AggregateBuilder::Buildable do
         email = Email.new
         email.id = 1
         contact.emails << email
+        email = Email.new
+        email.id = 2
+        contact.emails << email
         builder = FullContactBuilder.new
         contact = builder.build(contact, attributes)
       end
 
       it "should remove existing child" do
-        subject.emails.count.should == 1
+        subject.emails.count.should == 2
       end
 
       it "should properly build attributes for child" do
-        email = subject.emails.first
+        email = subject.emails.last
         email.email.should == 'test@example.com'
         email.type.should == 0
       end
