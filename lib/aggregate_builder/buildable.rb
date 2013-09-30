@@ -85,7 +85,8 @@ module AggregateBuilder
     end
 
     def prepare_attributes(entity, attributes)
-      #XXX: add any custom processing of attributes
+      processor = ChildrenProcessor.new(builder_rules)
+      processor.process(entity, attributes)
     end
 
     def process_attributes(attributes, entity)

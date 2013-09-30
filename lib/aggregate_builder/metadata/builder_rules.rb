@@ -2,18 +2,15 @@ module AggregateBuilder
   module Metadata
     class BuilderRules
       attr_accessor :root_class
-      attr_accessor :search_key_block
-      attr_accessor :search_key
-      attr_accessor :delete_key
-      attr_accessor :delete_key_block
       attr_reader   :fields_collection
       attr_reader   :callbacks
-      attr_accessor :unmapped_fields_error_level
+      attr_reader   :children_rules
+      attr_reader   :config_rules
 
       CALLBACKS = [:before, :after]
-      UNMAPPED_FIELDS_ERROR_LEVELS = [:silent, :warn, :error]
 
       def initialize
+        @config_rules                = ConfigRules.new
         @fields_collection           = FieldsCollection.new
         @children_rules              = ChildrenRules.new
         @callbacks                   = CallbacksCollection.new
@@ -28,10 +25,12 @@ module AggregateBuilder
       end
 
       def add_children(association_name, options = {}, &block)
-        return
         raise ArgumentError, "You should provide block" unless block_given?
         raise ArgumentError, "You should provide symbol" unless association_name.is_a?(Symbol)
-        @children_rules << ChildrenMetadata.new(association_name, options, &block)
+        child_metadata = ChildMetadata.new(association_name, options)
+        child_dsl = ChildrenDSL.new(child_metadata)
+        child_dsl.instance_exec &block
+        @children_rules << child_metadata
       end
 
       def add_callback(callback_type, method_name = nil, &block)
@@ -42,42 +41,16 @@ module AggregateBuilder
         @callbacks.add(callback_type, method_name, &block)
       end
 
-      def unmapped_fields_error_level(level)
-        raise ArgumentError, "Unsupported error level" if !UNMAPPED_FIELDS_ERROR_LEVELS.include?(level)
-        @unmapped_fields_error_level = level
-      end
-
-      def delete_key(key, &block)
-        raise ArgumentError, "Delete term should be a symbol" unless key.is_a?(Symbol)
-        @delete_key = key
-        if block_given?
-          @delete_key_block = block
-        end
-      end
-
-      def search_key(key, &block)
-        raise ArgumentError, "Search key should be a symbol" unless key.is_a?(Symbol)
-        @search_key = key
-        if block_given?
-          @search_key_block = block
-        end
-      end
-
-      def unmapped_fields_error_level=(level)
-        raise ArgumentError, "Unsupported error level" unless [:silent, :warn, :error].include?(level)
-        @unmapped_fields_error_level = level
-      end
-
       def silent_level?
-        @unmapped_fields_error_level == :silent
+        @config_rules.unmapped_fields_error_level == :silent
       end
 
       def warn_level?
-        @unmapped_fields_error_level == :warn
+        @config_rules.unmapped_fields_error_level == :warn
       end
 
       def error_level?
-        @unmapped_fields_error_level == :error
+        @config_rules.unmapped_fields_error_level == :error
       end
     end
   end

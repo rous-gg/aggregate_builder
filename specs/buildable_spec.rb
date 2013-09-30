@@ -66,23 +66,38 @@ describe AggregateBuilder::Buildable do
   end
 
   context "Assign attributes" do
+    class EmailBuilder
+      include AggregateBuilder::Buildable
+
+      build_rules do
+        field :email, required: true
+        field :type, type: :integer, required: true
+      end
+    end
+
+    class AddressBuilder
+      include AggregateBuilder::Buildable
+
+      build_rules do
+        fields :street, :city, :postal_code, :state
+      end
+    end
+
     class FullContactBuilder
       include AggregateBuilder::Buildable
 
       build_rules_for Contact do
-        #config do
-          search_key :id do |entity_key, key|
-            if key.present?
-              entity_key == key.to_s.to_i
-            end
+        config do
+          search_key :id do |id|
+            id.to_s.to_i
           end
 
           delete_key :_destroy do |value|
-            ['1', 'true'].include?(value)
+            ['1', 'true', 'y', 'yes'].include?(value)
           end
 
           unmapped_fields_error_level :warn#, :error, :silent
-        #end
+        end
 
         fields :first_name, :last_name, required: true
         field  :rating, type: :integer, required: true
@@ -124,23 +139,6 @@ describe AggregateBuilder::Buildable do
 
       def set_after_build_value(entity)
         entity.after_build_value = 'AFTER'
-      end
-    end
-
-    class EmailBuilder
-      include AggregateBuilder::Buildable
-
-      build_rules do
-        field :email, required: true
-        field :type, type: :integer, required: true
-      end
-    end
-
-    class AddressBuilder
-      include AggregateBuilder::Buildable
-
-      build_rules do
-        fields :street, :city, :postal_code, :state
       end
     end
 
@@ -222,15 +220,15 @@ describe AggregateBuilder::Buildable do
       end
 
       it "should properly build attributes for 1st child" do
-        email1 = subject.emails.first
-        email1.email.should == 'test@example.com'
-        email1.type.should == 0
+        email = subject.emails.first
+        email.email.should == 'test@example.com'
+        email.type.should == 0
       end
 
       it "should properly build attributes for 2nd child" do
-        email1 = subject.emails.last
-        email1.email.should == 'user@example.com'
-        email1.type.should == 1
+        email = subject.emails.last
+        email.email.should == 'user@example.com'
+        email.type.should == 1
       end
     end
   end

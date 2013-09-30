@@ -5,6 +5,12 @@ module AggregateBuilder
         @rules = rules
       end
 
+      def config(&block)
+        raise ArgumentError, "You should provide a block" unless block_given?
+        dsl = ConfigDSL.new(@rules.config_rules)
+        dsl.instance_exec &block
+      end
+
       def fields(*args)
         options = extract_options(args)
         args.each do |arg|
@@ -26,19 +32,6 @@ module AggregateBuilder
 
       def after_build(method_name = nil, &block)
         @rules.add_callback(:after, method_name, &block)
-      end
-
-      def search_key(key, &block)
-        @rules.search_key(key, &block)
-      end
-
-      def delete_key(key, &block)
-        raise ArgumentError, "Delete key should be a symbol" unless key.is_a?(Symbol)
-        @rules.delete_key(key, &block)
-      end
-
-      def unmapped_fields_error_level(level)
-        @rules.unmapped_fields_error_level = level
       end
 
       private
