@@ -61,6 +61,7 @@ module AggregateBuilder
 
     def build(entity_or_nil, attributes, &block)
       raise ArgumentError, "Attributes should be a hash" unless attributes.is_a?(Hash)
+      raise Errors::UndefinedRootClassError, "Aggregate root class is not defined" if !builder_rules.root_class
 
       attributes = attributes.dup
       (entity_or_nil || builder_rules.root_class.new).tap do |entity|
