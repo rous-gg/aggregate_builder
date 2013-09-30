@@ -5,12 +5,6 @@ module AggregateBuilder
         @rules = rules
       end
 
-      def config(&block)
-        raise ArgumentError, "You should provide a block" unless block_given?
-        dsl = ConfigDSL.new(@rules.config)
-        dsl.instance_exec &block
-      end
-
       def fields(*args)
         options = extract_options(args)
         args.each do |arg|

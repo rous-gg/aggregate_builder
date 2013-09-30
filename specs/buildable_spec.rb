@@ -86,19 +86,19 @@ describe AggregateBuilder::Buildable do
     class FullContactBuilder
       include AggregateBuilder::Buildable
 
-      build_rules_for Contact do
-        config do
-          search_key :id do |id|
-            id.to_s.to_i
-          end
-
-          delete_key :_destroy do |value|
-            ['1', 'true', 'y', 'yes'].include?(value)
-          end
-
-          unmapped_fields_error_level :warn#, :error, :silent
+      config_builder do
+        search_key :id do |id|
+          id.to_s.to_i
         end
 
+        delete_key :_destroy do |value|
+          ['1', 'true', 'y', 'yes'].include?(value)
+        end
+
+        unmapped_fields_error_level :warn#, :error, :silent
+      end
+
+      build_rules_for Contact do
         fields :first_name, :last_name
         field  :rating, type: :integer
         field  :average_rating, type: :float

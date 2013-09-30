@@ -5,6 +5,12 @@ module AggregateBuilder
     end
 
     module ClassMethods
+      def config_builder(&block)
+        raise ArgumentError, "You should provide block" unless block_given?
+        dsl = Metadata::ConfigDSL.new(builder_rules.config)
+        dsl.instance_exec &block
+      end
+
       def build_rules(root_class = nil, &block)
         raise ArgumentError, "You should provide block" unless block_given?
         rules = builder_rules
