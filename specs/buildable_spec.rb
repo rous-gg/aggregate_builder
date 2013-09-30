@@ -45,7 +45,7 @@ describe AggregateBuilder::Buildable do
         end
       end
 
-      rules = TestBuilder.send(:builder_rules)
+      rules = ContactBuilder.send(:builder_rules)
       rules.root_class.should == Contact
     end
 

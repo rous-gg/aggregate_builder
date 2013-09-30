@@ -20,14 +20,22 @@ module AggregateBuilder
       end
 
       def add_field(field_name, options = {}, &block)
+        raise ArgumentError, "You should provide symbol" unless field_name.is_a?(Symbol)
+        field = @fields_collection.find(field_name)
+        @fields_collection.delete(field) if field
         @fields_collection << FieldMetadata.new(field_name, options, &block)
       end
 
       def add_children(association_name, options = {}, &block)
+        raise ArgumentError, "You should provide block" unless block_given?
+        raise ArgumentError, "You should provide symbol" unless association_name.is_a?(Symbol)
         @children_rules << ChildrenMetadata.new(association_name, options, &block)
       end
 
       def add_callback(callback_type, method_name = nil, &block)
+        if !method_name.nil? && !method_name.is_a?(Symbol)
+          raise ArgumentError, "Callback method name should be a symbol" unless method_name.is_a?(Symbol)
+        end
         raise ArgumentError, "Unsupported callback type" if !CALLBACKS.include?(callback_type)
         @callbacks.add(callback_type, method_name, &block)
       end
@@ -37,22 +45,25 @@ module AggregateBuilder
         @unmapped_fields_error_level = level
       end
 
-      def delete_key=(term)
-        raise ArgumentError, "Delete term should be a symbol" unless term.is_a?(Symbol)
+      def delete_key(key, &block)
+        raise ArgumentError, "Delete term should be a symbol" unless key.is_a?(Symbol)
+        @delete_key = key
+        if block_given?
+          @delete_key_block = block
+        end
       end
 
-      def delete_key_block(&block)
-        raise ArgumentError, "You should provide block" unless block_given?
-        @delete_key_block = block
-      end
-
-      def search_key=(key)
+      def search_key(key, &block)
         raise ArgumentError, "Search key should be a symbol" unless key.is_a?(Symbol)
+        @search_key = key
+        if block_given?
+          @search_key_block = block
+        end
       end
 
-      def search_key_block(&block)
-        raise ArgumentError, "You should provide block" unless block_given?
-        @search_key_block = block
+      def unmapped_fields_error_level=(level)
+        raise ArgumentError, "Unsupported error level" unless [:silent, :warn, :error].include?(level)
+        @unmapped_fields_error_level = level
       end
 
       def check_attributes(attributes)

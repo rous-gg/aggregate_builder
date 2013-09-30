@@ -17,7 +17,6 @@ module AggregateBuilder
       end
 
       def build_children(child_name, options = {}, &block)
-        raise ArgumentError, "You should provide block" unless block_given?
         @rules.add_children(child_name, options, &block)
       end
 
@@ -30,17 +29,12 @@ module AggregateBuilder
       end
 
       def search_key(key, &block)
-        @rules.search_key = key
-        if block_given?
-          @rules.search_key_block(&block)
-        end
+        @rules.search_key(key, &block)
       end
 
-      def delete_key(term, &block)
-        @rules.delete_key = term
-        if block_given?
-          @rules.delete_key_block(&block)
-        end
+      def delete_key(key, &block)
+        raise ArgumentError, "Delete key should be a symbol" unless key.is_a?(Symbol)
+        @rules.delete_key(key, &block)
       end
 
       def unmapped_fields_error_level(level)
@@ -52,6 +46,8 @@ module AggregateBuilder
       def extract_options(args)
         if args.last.is_a?(Hash)
           args.pop
+        else
+          {}
         end
       end
     end
