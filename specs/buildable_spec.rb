@@ -2,11 +2,11 @@ require_relative 'spec_helper'
 
 describe AggregateBuilder::Buildable do
   class Email
-    attr_accessor :email, :type
+    attr_accessor :email, :type, :id
   end
 
   class Address
-    attr_accessor :street, :city, :postal_code, :state
+    attr_accessor :street, :city, :postal_code, :state, :id
   end
 
   class Contact
@@ -16,7 +16,7 @@ describe AggregateBuilder::Buildable do
     end
 
     attr_accessor :first_name, :last_name, :type_id, :date_of_birth, :is_private,
-                  :rating, :average_rating, :created_at, :company_name
+                  :rating, :average_rating, :created_at, :company_name, :id
 
     attr_accessor :before_build_value, :after_build_value
 
@@ -207,28 +207,26 @@ describe AggregateBuilder::Buildable do
         attributes = {
           emails: [
             {email: 'test@example.com', type: 0},
-            {email: 'user@example.com', type: 1},
+            {id: 1, email: 'user@example.com', type: 1, _destroy: '1'},
           ]
         }
 
+        contact = Contact.new
+        email = Email.new
+        email.id = 1
+        contact.emails << email
         builder = FullContactBuilder.new
-        contact = builder.build(nil, attributes)
+        contact = builder.build(contact, attributes)
       end
 
-      it "should properly build children" do
-        subject.emails.count.should == 2
+      it "should remove existing child" do
+        subject.emails.count.should == 1
       end
 
-      it "should properly build attributes for 1st child" do
+      it "should properly build attributes for child" do
         email = subject.emails.first
         email.email.should == 'test@example.com'
         email.type.should == 0
-      end
-
-      it "should properly build attributes for 2nd child" do
-        email = subject.emails.last
-        email.email.should == 'user@example.com'
-        email.type.should == 1
       end
     end
   end

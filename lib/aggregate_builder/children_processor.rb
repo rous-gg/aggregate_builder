@@ -8,6 +8,7 @@ module AggregateBuilder
       @attributes = attributes
       @entity     = entity
       attributes_keys = extract_attributes_keys(attributes)
+
       @builder_rules.children_rules.each do |child_metadata|
         raise ArgumentError, "You should define builder class for #{child_metadata.child_name}" if !child_metadata.builder
         child_key = find_key_or_alias(child_metadata, attributes_keys)
@@ -25,7 +26,7 @@ module AggregateBuilder
               child = find_child(children_or_child, attrs)
 
               if child && should_delete?(child_metadata, attrs)
-                children_or_child.delete_if do |child_entity|
+                entity.send(child_metadata.child_name).delete_if do |child_entity|
                   child_entity == child
                 end
               else
