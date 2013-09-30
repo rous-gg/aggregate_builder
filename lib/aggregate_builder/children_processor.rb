@@ -55,10 +55,10 @@ module AggregateBuilder
     private
 
     def find_child(children, association_attributes)
-      search_key = @builder_rules.config_rules.search_key
+      search_key = @builder_rules.config.search_key
       search_key_value = association_attributes[search_key] || association_attributes[search_key.to_sym]
       if search_key_value
-        search_key_value = @builder_rules.config_rules.search_key_block.call search_key_value
+        search_key_value = @builder_rules.config.search_key_block.call search_key_value
         children.detect do |child|
           child.send(search_key) == search_key_value
         end
@@ -67,10 +67,10 @@ module AggregateBuilder
 
     def should_delete?(child_metadata, association_attributes)
       if child_metadata.deletable?
-        delete_key = @builder_rules.config_rules.delete_key
+        delete_key = @builder_rules.config.delete_key
         value = association_attributes[delete_key] || association_attributes[delete_key.to_s]
         if value
-          @builder_rules.config_rules.delete_key_block.call(value)
+          @builder_rules.config.delete_key_block.call(value)
         end
       end
     end

@@ -7,7 +7,7 @@ module AggregateBuilder
 
       def config(&block)
         raise ArgumentError, "You should provide a block" unless block_given?
-        dsl = ConfigDSL.new(@rules.config_rules)
+        dsl = ConfigDSL.new(@rules.config)
         dsl.instance_exec &block
       end
 

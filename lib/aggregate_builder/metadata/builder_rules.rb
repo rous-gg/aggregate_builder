@@ -5,7 +5,6 @@ module AggregateBuilder
       attr_reader   :fields_collection
       attr_reader   :callbacks
       attr_reader   :children_rules
-      attr_reader   :config_rules
 
       CALLBACKS = [:before, :after]
 
@@ -15,6 +14,10 @@ module AggregateBuilder
         @children_rules              = ChildrenRules.new
         @callbacks                   = CallbacksCollection.new
         @unmapped_fields_error_level = :silent
+      end
+
+      def config
+        @config_rules
       end
 
       def add_field(field_name, options = {}, &block)
@@ -42,15 +45,15 @@ module AggregateBuilder
       end
 
       def silent_level?
-        @config_rules.unmapped_fields_error_level == :silent
+        config.unmapped_fields_error_level == :silent
       end
 
       def warn_level?
-        @config_rules.unmapped_fields_error_level == :warn
+        config.unmapped_fields_error_level == :warn
       end
 
       def error_level?
-        @config_rules.unmapped_fields_error_level == :error
+        config.unmapped_fields_error_level == :error
       end
     end
   end
