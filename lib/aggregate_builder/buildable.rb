@@ -19,6 +19,13 @@ module AggregateBuilder
         dsl.instance_exec(&block)
       end
 
+      def build_defaults(&block)
+        raise ArgumentError, "You should provide block" unless block_given?
+        rules = builder_rules
+        dsl   = Metadata::DSL.new(rules)
+        dsl.instance_exec(&block)
+      end
+
       def build_rules_for(root_class, &block)
         raise ArgumentError, "You should provide class" unless root_class.is_a?(Class)
         build_rules(root_class, &block)

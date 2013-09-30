@@ -65,6 +65,24 @@ describe AggregateBuilder::Buildable do
     end
   end
 
+  context "Build defaults" do
+    it "should allows to assign defaults" do
+      class DefaultBuilder
+        include AggregateBuilder::Buildable
+
+        build_defaults do
+          before_build :setup_defaults
+        end
+
+        def setup_defaults
+        end
+      end
+
+      rules = DefaultBuilder.send(:builder_rules)
+      rules.callbacks.callbacks_by_type(:before).size.should == 1
+    end
+  end
+
   context "Assign attributes" do
     class EmailBuilder
       include AggregateBuilder::Buildable
