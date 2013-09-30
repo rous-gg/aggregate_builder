@@ -39,6 +39,15 @@ module AggregateBuilder
       value ||= @attributes[field_key] || @attributes[field_key.to_s]
       klass = type_caster_class(field)
       type_caster_class(field).clean(value)
+    rescue => e
+      if @builder_rules.silen_level?
+        nil
+      elsif @builder_rules.warn_level?
+        p e.message
+        nil
+      elsif @builder_rules.error_level?
+        raise e
+      end
     end
 
     def type_caster_class(field)
