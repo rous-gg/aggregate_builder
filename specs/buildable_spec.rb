@@ -1,8 +1,8 @@
 require_relative 'spec_helper'
 
 describe AggregateBuilder::Buildable do
-  class Emails < Array
-    attr_accessor :email, :email_type
+  class Email
+    attr_accessor :email, :type
   end
 
   class Address
@@ -18,8 +18,10 @@ describe AggregateBuilder::Buildable do
     attr_accessor :first_name, :last_name, :type_id, :date_of_birth, :is_private,
                   :rating, :average_rating, :created_at, :company_name
 
+    attr_accessor :emails, :address
+
     def initialize
-      @emails  = Emails.new
+      @emails  = []
       @address = Address.new
     end
   end
@@ -99,6 +101,23 @@ describe AggregateBuilder::Buildable do
       end
     end
 
+    class EmailBuilder
+      include AggregateBuilder::Buildable
+
+      build_rules do
+        field :email, required: true
+        field :type, type: :integer, required: true
+      end
+    end
+
+    class AddressBuilder
+      include AggregateBuilder::Buildable
+
+      build_rules do
+        fields :street, :city, :postal_code, :state
+      end
+    end
+
     subject do
       attributes = {
         first_name: 'John',
@@ -108,7 +127,17 @@ describe AggregateBuilder::Buildable do
         date_of_birth: '12/09/1965',
         type_id: 3,
         is_private: true,
-        created_at: "2013-09-30 08:58:28 +0400"
+        created_at: "2013-09-30 08:58:28 +0400",
+        emails: [
+          {email: 'test@example.com', type: 0},
+          {email: 'user@example.com', type: 1},
+        ],
+        address: {
+          street: 'Street',
+          city: 'City',
+          postal_code: 'Code',
+          state: 'State'
+        }
       }
 
       builder = FullContactBuilder.new
@@ -124,5 +153,57 @@ describe AggregateBuilder::Buildable do
     its(:is_private)      { should == true }
     its(:created_at)      { should == Time.new("2013-09-30 08:58:28 +0400") }
     its(:company_name)    { should == 'John Doe Inc.' }
+
+    context "Child processing" do
+      subject do
+        attributes = {
+          address: {
+            street: 'Street',
+            city: 'City',
+            postal_code: 'Code',
+            state: 'State'
+          }
+        }
+
+        builder = FullContactBuilder.new
+        contact = builder.build(nil, attributes)
+        contact.address
+      end
+
+      its(:street)      { should == 'Street' }
+      its(:city)        { should == 'City' }
+      its(:postal_code) { should == 'Code' }
+      its(:state)       { should == 'State' }
+    end
+
+    context "Children processing" do
+      subject do
+        attributes = {
+          emails: [
+            {email: 'test@example.com', type: 0},
+            {email: 'user@example.com', type: 1},
+          ]
+        }
+
+        builder = FullContactBuilder.new
+        contact = builder.build(nil, attributes)
+      end
+
+      it "should properly build children" do
+        subject.emails.count.should == 2
+      end
+
+      it "should properly build attributes for 1st child" do
+        email1 = subject.emails.first
+        email1.email.should == 'test@example.com'
+        email1.type.should == 0
+      end
+
+      it "should properly build attributes for 2nd child" do
+        email1 = subject.emails.last
+        email1.email.should == 'user@example.com'
+        email1.type.should == 1
+      end
+    end
   end
 end
