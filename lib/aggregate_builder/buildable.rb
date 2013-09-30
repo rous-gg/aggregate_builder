@@ -65,10 +65,10 @@ module AggregateBuilder
 
       attributes = attributes.dup
       (entity_or_nil || builder_rules.root_class.new).tap do |entity|
-        prepare_attributes(entity, attributes)
-        run_before_build_callbacks(entity, attributes)
         processed_attributes = process_attributes(attributes, entity)
+        run_before_build_callbacks(entity, attributes)
         set_attributes(entity, processed_attributes)
+        run_before_build_children_callbacks(entity, attributes)
         build_nested_associations(entity, attributes)
         run_after_build_callbacks(entity, attributes)
       end
@@ -88,6 +88,10 @@ module AggregateBuilder
       run_callbacks(:after, entity, attributes)
     end
 
+    def run_before_build_children_callbacks(entity, attributes)
+      run_callbacks(:before_children, entity, attributes)
+    end
+
     def run_callbacks(type, entity, attributes)
       builder_rules.callbacks.callbacks_by_type(type).each do |callback|
         if callback.method_name
@@ -96,11 +100,6 @@ module AggregateBuilder
           instance_exec entity, attributes, &callback.callback_block
         end
       end
-    end
-
-    def prepare_attributes(entity, attributes)
-      processor = ChildrenProcessor.new(builder_rules)
-      processor.process(entity, attributes)
     end
 
     def process_attributes(attributes, entity)
@@ -115,7 +114,8 @@ module AggregateBuilder
     end
 
     def build_nested_associations(entity, attributes)
-      # TODO: add nested processing here
+      processor = ChildrenProcessor.new(builder_rules)
+      processor.process(entity, attributes)
     end
 
     def builder_rules

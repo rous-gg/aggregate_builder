@@ -24,6 +24,10 @@ module AggregateBuilder
         @rules.add_callback(:before, method_name, &block)
       end
 
+      def before_build_children(method_name = nil, &block)
+        @rules.add_callback(:before_children, method_name, &block)
+      end
+
       def after_build(method_name = nil, &block)
         @rules.add_callback(:after, method_name, &block)
       end

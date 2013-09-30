@@ -18,7 +18,7 @@ describe AggregateBuilder::Buildable do
     attr_accessor :first_name, :last_name, :type_id, :date_of_birth, :is_private,
                   :rating, :average_rating, :created_at, :company_name, :id
 
-    attr_accessor :before_build_value, :after_build_value
+    attr_accessor :before_build_value, :after_build_value, :before_build_children_value
 
     attr_accessor :emails, :address
 
@@ -128,6 +128,10 @@ describe AggregateBuilder::Buildable do
           default_company_name
         end
 
+        before_build_children do |entity, attributes|
+          entity.before_build_children_value = "BEFORE BUILD CHILDREN"
+        end
+
         build_children :address do
           builder AddressBuilder
           deletable true
@@ -186,17 +190,18 @@ describe AggregateBuilder::Buildable do
       builder.build(nil, attributes)
     end
 
-    its(:first_name)            { should == 'John' }
-    its(:last_name)             { should == 'Doe' }
-    its(:rating)                { should == 10 }
-    its(:average_rating)        { should == 2.1 }
-    its(:date_of_birth)         { should == Date.parse('12/09/1965') }
-    its(:type_id)               { should == 3 }
-    its(:is_private)            { should == true }
-    its(:created_at)            { should == Time.new("2013-09-30 08:58:28 +0400") }
-    its(:company_name)          { should == 'John Doe Inc.' }
-    its(:before_build_value)    { should == 'BEFORE' }
-    its(:after_build_value)     { should == 'AFTER' }
+    its(:first_name)                   { should == 'John' }
+    its(:last_name)                    { should == 'Doe' }
+    its(:rating)                       { should == 10 }
+    its(:average_rating)               { should == 2.1 }
+    its(:date_of_birth)                { should == Date.parse('12/09/1965') }
+    its(:type_id)                      { should == 3 }
+    its(:is_private)                   { should == true }
+    its(:created_at)                   { should == Time.new("2013-09-30 08:58:28 +0400") }
+    its(:company_name)                 { should == 'John Doe Inc.' }
+    its(:before_build_value)           { should == 'BEFORE' }
+    its(:after_build_value)            { should == 'AFTER' }
+    its(:before_build_children_value)  { should == "BEFORE BUILD CHILDREN" }
 
     context "Child processing" do
       subject do

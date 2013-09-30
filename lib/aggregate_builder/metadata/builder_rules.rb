@@ -6,7 +6,7 @@ module AggregateBuilder
       attr_reader   :callbacks
       attr_reader   :children_rules
 
-      CALLBACKS = [:before, :after]
+      CALLBACKS = [:before, :after, :before_children]
 
       def initialize
         @config_rules                = ConfigRules.new
