@@ -21,6 +21,5 @@ require "aggregate_builder/metadata/children_dsl"
 require "aggregate_builder/metadata/builder_rules"
 require "aggregate_builder/metadata/dsl"
 
-
 module AggregateBuilder
 end

@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Ruslan Gatiyatov", "Albert Gazizov", "Droid Labs LLC"]
   spec.email         = ["ruslan.gatiyatov@gmail.com", "deeper4k@gmail.com"]
   spec.description   = %q{Aggregate builder provides common DSL for building aggregates}
-  spec.summary       = %q{TODO: Write a gem summary}
+  spec.summary       = %q{Common aggregates building library}
   spec.homepage      = "http://droidlabs.pro"
   spec.license       = "MIT"
 
