@@ -4,11 +4,11 @@ module AggregateBuilder
       attr_reader :method_name, :callback_block
 
       def initialize(method_name, &block)
-        if method_name.blank? && !block_given?
+        if method_name.nil? && !block_given?
           raise ArgumentError, "Callback Method name or block is required"
         end
         @method_name    = method_name
-        @callback_block = &block
+        @callback_block = block
       end
     end
   end

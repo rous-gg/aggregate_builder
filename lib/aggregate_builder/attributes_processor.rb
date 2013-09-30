@@ -70,9 +70,9 @@ module AggregateBuilder
 
     def log_missing_attribute(field)
       if @builder_rules.warn_level?
-        p "Warning: Required field #{field.field_name} is missing"
+        p "Warning: Required field #{field.field_name} is missing for #{@builder.class} builder"
       elsif @builder_rules.error_level?
-        raise Errors::RequireAttributeMissingError, "Required field #{field.field_name} is missing"
+        raise Errors::RequireAttributeMissingError, "Required field #{field.field_name} is missing for #{@builder.class} builder"
       end
     end
   end

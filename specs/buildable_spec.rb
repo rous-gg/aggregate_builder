@@ -18,6 +18,8 @@ describe AggregateBuilder::Buildable do
     attr_accessor :first_name, :last_name, :type_id, :date_of_birth, :is_private,
                   :rating, :average_rating, :created_at, :company_name
 
+    attr_accessor :before_build_value, :after_build_value
+
     attr_accessor :emails, :address
 
     def initialize
@@ -90,14 +92,38 @@ describe AggregateBuilder::Buildable do
         field  :is_private, type: :boolean
         field  :created_at, type: :time
         field  :company_name do |entity, attributes|
-          'John Doe Inc.'
+          default_company_name
         end
 
-        before_build do |entity|
+        build_children :address do
+          builder AddressBuilder
+          deletable true
         end
 
-        after_build do |entity|
+        build_children :emails do
+          builder EmailBuilder
+          deletable true
         end
+
+        before_build :before_build_callback
+
+        after_build do |entity, attributes|
+          set_after_build_value(entity)
+        end
+      end
+
+      private
+
+      def default_company_name
+        'John Doe Inc.'
+      end
+
+      def before_build_callback(entity, attributes)
+        entity.before_build_value = 'BEFORE'
+      end
+
+      def set_after_build_value(entity)
+        entity.after_build_value = 'AFTER'
       end
     end
 
@@ -144,15 +170,17 @@ describe AggregateBuilder::Buildable do
       builder.build(nil, attributes)
     end
 
-    its(:first_name)      { should == 'John' }
-    its(:last_name)       { should == 'Doe' }
-    its(:rating)          { should == 10 }
-    its(:average_rating)  { should == 2.1 }
-    its(:date_of_birth)   { should == Date.parse('12/09/1965') }
-    its(:type_id)         { should == 3 }
-    its(:is_private)      { should == true }
-    its(:created_at)      { should == Time.new("2013-09-30 08:58:28 +0400") }
-    its(:company_name)    { should == 'John Doe Inc.' }
+    its(:first_name)            { should == 'John' }
+    its(:last_name)             { should == 'Doe' }
+    its(:rating)                { should == 10 }
+    its(:average_rating)        { should == 2.1 }
+    its(:date_of_birth)         { should == Date.parse('12/09/1965') }
+    its(:type_id)               { should == 3 }
+    its(:is_private)            { should == true }
+    its(:created_at)            { should == Time.new("2013-09-30 08:58:28 +0400") }
+    its(:company_name)          { should == 'John Doe Inc.' }
+    its(:before_build_value)    { should == 'BEFORE' }
+    its(:after_build_value)     { should == 'AFTER' }
 
     context "Child processing" do
       subject do

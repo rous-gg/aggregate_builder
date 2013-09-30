@@ -52,11 +52,11 @@ module AggregateBuilder
       attributes = attributes.dup
       (entity_or_nil || builder_rules.root_class.new).tap do |entity|
         prepare_attributes(entity, attributes)
+        run_before_build_callbacks(entity, attributes)
         processed_attributes = process_attributes(attributes, entity)
-        run_before_build_callbacks(entity)
         set_attributes(entity, processed_attributes)
         build_nested_associations(entity, attributes)
-        run_after_build_callbacks(entity)
+        run_after_build_callbacks(entity, attributes)
       end
     end
 
@@ -66,10 +66,22 @@ module AggregateBuilder
 
     private
 
-    def run_before_build_callbacks(entity)
+    def run_before_build_callbacks(entity, attributes)
+      run_callbacks(:before, entity, attributes)
     end
 
-    def run_after_build_callbacks(entity)
+    def run_after_build_callbacks(entity, attributes)
+      run_callbacks(:after, entity, attributes)
+    end
+
+    def run_callbacks(type, entity, attributes)
+      builder_rules.callbacks.callbacks_by_type(type).each do |callback|
+        if callback.method_name
+          send(callback.method_name, entity, attributes)
+        else
+          instance_exec entity, attributes, &callback.callback_block
+        end
+      end
     end
 
     def prepare_attributes(entity, attributes)

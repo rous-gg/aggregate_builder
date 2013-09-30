@@ -7,6 +7,7 @@ module AggregateBuilder
       attr_accessor :delete_key
       attr_accessor :delete_key_block
       attr_reader   :fields_collection
+      attr_reader   :callbacks
       attr_accessor :unmapped_fields_error_level
 
       CALLBACKS = [:before, :after]
@@ -15,7 +16,7 @@ module AggregateBuilder
       def initialize
         @fields_collection           = FieldsCollection.new
         @children_rules              = ChildrenRules.new
-        #@callbacks                   = CallbacksCollection.new
+        @callbacks                   = CallbacksCollection.new
         @unmapped_fields_error_level = :silent
       end
 
@@ -27,13 +28,13 @@ module AggregateBuilder
       end
 
       def add_children(association_name, options = {}, &block)
+        return
         raise ArgumentError, "You should provide block" unless block_given?
         raise ArgumentError, "You should provide symbol" unless association_name.is_a?(Symbol)
         @children_rules << ChildrenMetadata.new(association_name, options, &block)
       end
 
       def add_callback(callback_type, method_name = nil, &block)
-        return
         if !method_name.nil? && !method_name.is_a?(Symbol)
           raise ArgumentError, "Callback method name should be a symbol" unless method_name.is_a?(Symbol)
         end
