@@ -1,19 +1,21 @@
 module AggregateBuilder
   module Buildable
-    def self.included(base)
-      base.extend ClassMethods
+    extend ActiveSupport::Concern
+
+    included do
+      class_attribute :builder_rules
     end
 
     module ClassMethods
       def config_builder(&block)
         raise ArgumentError, "You should provide block" unless block_given?
-        dsl = Metadata::ConfigDSL.new(builder_rules.config)
+        dsl = Metadata::ConfigDSL.new(get_or_build_rules.config)
         dsl.instance_exec &block
       end
 
       def build_rules(root_class = nil, &block)
         raise ArgumentError, "You should provide block" unless block_given?
-        rules = builder_rules
+        rules = get_or_build_rules
         dsl   = Metadata::DSL.new(rules)
         set_root_class(rules, root_class)
         dsl.instance_exec(&block)
@@ -21,7 +23,7 @@ module AggregateBuilder
 
       def build_defaults(&block)
         raise ArgumentError, "You should provide block" unless block_given?
-        rules = builder_rules
+        rules = get_or_build_rules
         dsl   = Metadata::DSL.new(rules)
         dsl.instance_exec(&block)
       end
@@ -46,17 +48,9 @@ module AggregateBuilder
         end
       end
 
-      def builder_rules
-        rules = if class_variables.include?(:@@builder_rules)
-          class_variable_get(:@@builder_rules)
-        end
-        if rules.nil?
-          rules = Metadata::BuilderRules.new
-          class_variable_set(:@@builder_rules, rules)
-        end
-        rules
+      def get_or_build_rules
+        self.builder_rules || self.builder_rules = Metadata::BuilderRules.new
       end
-
     end
 
     def build(entity_or_nil, attributes, &block)
@@ -116,10 +110,6 @@ module AggregateBuilder
     def build_nested_associations(entity, attributes)
       processor = ChildrenProcessor.new(builder_rules)
       processor.process(entity, attributes)
-    end
-
-    def builder_rules
-      @builder_rules ||= self.class.class_variable_get(:@@builder_rules)
     end
   end
 end

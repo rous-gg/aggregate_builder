@@ -1,3 +1,5 @@
+require 'active_support/core_ext/class/attribute.rb'
+require 'active_support/concern.rb'
 require "aggregate_builder/version"
 require "aggregate_builder/errors"
 
