@@ -1,7 +1,8 @@
 module AggregateBuilder
   class ChildrenProcessor < BaseProcessor
-    def initialize(builder_rules)
+    def initialize(builder_rules, builder)
       @builder_rules = builder_rules
+      @builder       = builder
     end
 
     def process(entity, attributes)
@@ -36,7 +37,7 @@ module AggregateBuilder
                   child_entity == child
                 end
               else
-                builder = child_metadata.builder.new
+                builder = get_builder(child_metadata)
                 entity.send(child_metadata.child_name) << builder.build(child, attrs)
               end
             end
@@ -53,7 +54,7 @@ module AggregateBuilder
             if should_delete?(child_metadata, association_attributes)
               entity.send("#{child_metadata.child_name}=", nil)
             else
-              builder = child_metadata.builder.new
+              builder = get_builder(child_metadata)
               entity.send(
                 "#{child_metadata.child_name}=",
                 builder.build(children_or_child, association_attributes)
@@ -65,6 +66,14 @@ module AggregateBuilder
     end
 
     private
+
+    def get_builder(child_metadata)
+      if child_metadata.builder.is_a?(Class)
+        child_metadata.builder.new
+      elsif child_metadata.builder.is_a?(Symbol)
+        @builder.send(child_metadata.builder)
+      end
+    end
 
     def find_child(children, association_attributes)
       search_key = @builder_rules.config.search_key

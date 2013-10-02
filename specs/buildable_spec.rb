@@ -133,7 +133,7 @@ describe AggregateBuilder::Buildable do
         end
 
         build_children :address do
-          builder AddressBuilder
+          builder :address_builder
           deletable true
         end
 
@@ -150,6 +150,10 @@ describe AggregateBuilder::Buildable do
       end
 
       private
+
+      def address_builder
+        AddressBuilder.new
+      end
 
       def default_company_name
         'John Doe Inc.'

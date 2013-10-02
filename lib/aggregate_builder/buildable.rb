@@ -112,7 +112,7 @@ module AggregateBuilder
     end
 
     def build_nested_associations(entity, attributes)
-      processor = ChildrenProcessor.new(builder_rules)
+      processor = ChildrenProcessor.new(builder_rules, self)
       processor.process(entity, attributes)
     end
   end

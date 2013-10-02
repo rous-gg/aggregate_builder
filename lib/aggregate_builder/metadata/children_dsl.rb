@@ -5,9 +5,11 @@ module AggregateBuilder
         @children_rules = children_rules
       end
 
-      def builder(builder_klass)
-        raise ArgumentError, "You should provide builder class" unless builder_klass.is_a?(Class)
-        @children_rules.builder = builder_klass
+      def builder(builder_klass_or_method_name)
+        if !(builder_klass_or_method_name.is_a?(Class) || builder_klass_or_method_name.is_a?(Symbol))
+          raise ArgumentError, "You should provide builder class or method name"
+        end
+        @children_rules.builder = builder_klass_or_method_name
       end
 
       def deletable(flag)
