@@ -9,8 +9,7 @@ module AggregateBuilder
         clonned = self.class.new
         clonned_callbacks = {}
         @callbacks.each do |type, callback|
-          clonned_callbacks[type] ||= []
-          clonned_callbacks[type] << callback.dup
+          clonned_callbacks[type] = callback.dup
         end
         clonned.instance_variable_set(:@callbacks, clonned_callbacks)
         clonned
