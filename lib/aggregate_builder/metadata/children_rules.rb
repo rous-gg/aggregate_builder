@@ -5,6 +5,14 @@ module AggregateBuilder
         @children_collection = []
       end
 
+      def clone
+        clonned = self.class.new
+        @children_collection.each do |child|
+          clonned << child.dup
+        end
+        clonned
+      end
+
       def <<(child_metadata)
         delete(child_metadata.child_name)
         @children_collection << child_metadata

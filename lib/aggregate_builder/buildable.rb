@@ -7,6 +7,10 @@ module AggregateBuilder
     end
 
     module ClassMethods
+      def inherited(base)
+        base.builder_rules = self.builder_rules.clone if self.builder_rules
+      end
+
       def config_builder(&block)
         raise ArgumentError, "You should provide block" unless block_given?
         dsl = Metadata::ConfigDSL.new(get_or_build_rules.config)

@@ -5,6 +5,17 @@ module AggregateBuilder
         @callbacks = {}
       end
 
+      def clone
+        clonned = self.class.new
+        clonned_callbacks = {}
+        @callbacks.each do |type, callback|
+          clonned_callbacks[type] ||= []
+          clonned_callbacks[type] << callback.dup
+        end
+        clonned.instance_variable_set(:@callbacks, clonned_callbacks)
+        clonned
+      end
+
       def add(callback_type, method_name, &block)
         @callbacks[callback_type] ||= []
         @callbacks[callback_type] << CallbackMetadata.new(method_name, &block)

@@ -4,4 +4,12 @@ class FieldsCollection < Array
       field.field_name == field_name
     end
   end
+
+  def clone
+    clonned = self.class.new
+    each do |v|
+      clonned << v.dup
+    end
+    clonned
+  end
 end
