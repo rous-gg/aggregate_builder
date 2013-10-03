@@ -118,7 +118,9 @@ describe AggregateBuilder::Buildable do
 
       build_rules_for Contact do
         fields :first_name, :last_name
-        field  :rating, type: :integer
+        field  :rating, type: :integer do |entity, attributes|
+          attribute_for :rating, attributes
+        end
         field  :average_rating, type: :float
         field  :date_of_birth, type: :date
         field  :type_id, type: :integer

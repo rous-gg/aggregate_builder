@@ -18,6 +18,20 @@ module AggregateBuilder
       processed_attributes
     end
 
+    def attribute_for(field_name, attributes)
+      field = @builder_rules.fields_collection.find(field_name)
+      if field
+        alias_key = field.keys.detect do |key|
+          attributes.has_key?(key) || attributes.has_key?(key.to_s)
+        end
+        if alias_key
+          attributes[alias_key] || attributes[alias_key.to_s]
+        end
+      else
+        raise Errors::FieldNotDefinedError, "Specified field is not defined"
+      end
+    end
+
     private
 
     def process_attribute(field, field_key)

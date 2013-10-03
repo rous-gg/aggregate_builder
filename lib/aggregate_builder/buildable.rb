@@ -78,6 +78,11 @@ module AggregateBuilder
 
     private
 
+    def attribute_for(field, attributes)
+      processor = AttributesProcessor.new(builder_rules, self)
+      processor.attribute_for(field, attributes)
+    end
+
     def run_before_build_callbacks(entity, attributes)
       run_callbacks(:before, entity, attributes)
     end
