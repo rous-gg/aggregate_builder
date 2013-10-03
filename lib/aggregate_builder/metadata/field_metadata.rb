@@ -25,8 +25,8 @@ module AggregateBuilder
         !!@value_processor
       end
 
-      def required?
-        !!@options[:required]
+      def required
+        @options[:required] || false
       end
 
       private

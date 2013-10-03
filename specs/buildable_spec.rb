@@ -261,6 +261,67 @@ describe AggregateBuilder::Buildable do
     end
   end
 
+  context "Required fields" do
+    class FieldWithRequirenmnets
+      attr_accessor :required_field
+      attr_accessor :required_field_with_condition
+      attr_accessor :not_required_field
+    end
+
+    class RequiredFieldBuilder
+      include AggregateBuilder::Buildable
+
+      config_builder do
+        unmapped_fields_error_level :error
+      end
+
+      build_rules_for FieldWithRequirenmnets do
+        field :required_field, required: true
+        field :required_field_with_condition, required: :required_condition
+        field :not_required_field
+      end
+
+      private
+
+      def required_condition(entity, attributes)
+        true
+      end
+    end
+
+    it "should raise error when required field is missing" do
+      builder = RequiredFieldBuilder.new
+      lambda do
+        builder.build(
+          nil,
+          {required_field_with_condition: 'required_field_with_condition'}
+        )
+      end.should raise_error(AggregateBuilder::Errors::RequireAttributeMissingError)
+    end
+
+    it "should raise error when required field with condition is missing" do
+      builder = RequiredFieldBuilder.new
+      lambda do
+        builder.build(
+          nil,
+          {required_field: 'required_field'}
+        )
+      end.should raise_error(AggregateBuilder::Errors::RequireAttributeMissingError)
+    end
+
+    it "should not raise error when required field present" do
+      builder = RequiredFieldBuilder.new
+      lambda do
+        field = builder.build(
+          nil,
+          {
+            required_field: 'required',
+            required_field_with_condition: 'required_field_with_condition'
+          }
+        )
+      end.should_not raise_error
+    end
+  end
+
   context "Inheritance" do
     class BaseBuilder
       include AggregateBuilder::Buildable

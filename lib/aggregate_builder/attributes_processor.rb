@@ -21,7 +21,7 @@ module AggregateBuilder
     private
 
     def process_attribute(field, field_key)
-      if !field_key && field.required?
+      if !field_key && required_field?(field)
         log_missing_attribute(field)
       end
 
@@ -33,6 +33,16 @@ module AggregateBuilder
 
       field_key ||= field.field_name
       clean_value(field, field_key, value)
+    end
+
+    def required_field?(field)
+      if field.required
+        if field.required.is_a?(Symbol)
+          @builder.send(field.required, @entity, @attributes)
+        else
+          true
+        end
+      end
     end
 
     def clean_value(field, field_key, value)
