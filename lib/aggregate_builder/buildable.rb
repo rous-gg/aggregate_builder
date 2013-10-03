@@ -46,7 +46,7 @@ module AggregateBuilder
       def extract_default_root_class
         class_name = self.to_s.split("::").last
         if class_name =~ /Builder$/
-          Object.const_get(class_name.sub(/Builder$/, ''))
+          class_name.sub(/Builder$/, '').constantize
         else
           raise Errors::UndefinedRootClassError, "Unable to set aggregate class from builder name"
         end

@@ -54,8 +54,8 @@ module AggregateBuilder
       if field.type.is_a?(Class)
         field.type
       else
-        type = field.type.to_s.split('_').each(&:capitalize!).join("")
-        Object.const_get("AggregateBuilder").const_get("TypeCasters").const_get("#{type}Caster")
+        type = field.type.to_s.classify
+        "AggregateBuilder::TypeCasters::#{type}Caster".constantize
       end
     end
 
