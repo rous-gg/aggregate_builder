@@ -50,7 +50,7 @@ module AggregateBuilder
       klass = type_caster_class(field)
       type_caster_class(field).clean(value)
     rescue => e
-      if @builder_rules.silen_level?
+      if @builder_rules.silent_level?
         nil
       elsif @builder_rules.warn_level?
         p e.message
