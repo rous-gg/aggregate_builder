@@ -1,7 +1,7 @@
 module AggregateBuilder
   module Metadata
     class ChildMetadata
-      attr_accessor :builder, :deletable
+      attr_accessor :builder, :deletable, :reject_if_block
       attr_reader   :child_name
       attr_reader   :aliases
 

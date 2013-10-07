@@ -141,6 +141,11 @@ describe AggregateBuilder::Buildable do
 
         build_children :emails do
           builder EmailBuilder
+
+          reject_if do |entity, attributes|
+            attributes[:reject] == true
+          end
+
           deletable true
         end
 
@@ -182,7 +187,7 @@ describe AggregateBuilder::Buildable do
         created_at: "2013-09-30 08:58:28 +0400",
         emails: [
           {email: 'test@example.com', type: 0},
-          {email: 'user@example.com', type: 1},
+          {email: 'user@example.com', type: 1}
         ],
         address: {
           street: 'Street',
@@ -237,6 +242,7 @@ describe AggregateBuilder::Buildable do
           emails: [
             {email: 'test@example.com', type: 0},
             {id: 1, email: 'user@example.com', type: 1, _destroy: '1'},
+            {reject: true, email: 'user@example.com', type: 1}
           ]
         }
 

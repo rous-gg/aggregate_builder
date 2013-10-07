@@ -32,13 +32,15 @@ module AggregateBuilder
             association_attributes.each do |attrs|
               child = find_child(children_or_child, attrs)
 
-              if child && should_delete?(child_metadata, attrs)
-                entity.send(child_metadata.child_name).delete_if do |child_entity|
-                  child_entity == child
+              if should_build?(child_metadata, attrs)
+                if child && should_delete?(child_metadata, attrs)
+                  entity.send(child_metadata.child_name).delete_if do |child_entity|
+                    child_entity == child
+                  end
+                else
+                  builder = get_builder(child_metadata)
+                  entity.send(child_metadata.child_name) << builder.build(child, attrs)
                 end
-              else
-                builder = get_builder(child_metadata)
-                entity.send(child_metadata.child_name) << builder.build(child, attrs)
               end
             end
           else
@@ -51,14 +53,16 @@ module AggregateBuilder
                 next
               end
             end
-            if should_delete?(child_metadata, association_attributes)
-              entity.send("#{child_metadata.child_name}=", nil)
-            else
-              builder = get_builder(child_metadata)
-              entity.send(
-                "#{child_metadata.child_name}=",
-                builder.build(children_or_child, association_attributes)
-              )
+            if should_build?(child_metadata, association_attributes)
+              if should_delete?(child_metadata, association_attributes)
+                entity.send("#{child_metadata.child_name}=", nil)
+              else
+                builder = get_builder(child_metadata)
+                entity.send(
+                  "#{child_metadata.child_name}=",
+                  builder.build(children_or_child, association_attributes)
+                )
+              end
             end
           end
         end
@@ -93,6 +97,18 @@ module AggregateBuilder
         if value
           @builder_rules.config.delete_key_block.call(value)
         end
+      end
+    end
+
+    def should_build?(child_metadata, association_attributes)
+      if child_metadata.reject_if_block
+        !@builder.instance_exec(
+          @entity,
+          association_attributes,
+          &child_metadata.reject_if_block
+        )
+      else
+        true
       end
     end
 
