@@ -1,61 +1,44 @@
 require_relative 'spec_helper'
 
 describe AggregateBuilder::Buildable do
-  class Email
-    attr_accessor :email, :type, :id
-  end
-
-  class Address
-    attr_accessor :street, :city, :postal_code, :state, :id
-  end
-
-  class Contact
-    module ContactTypes
-      PERSON  = 0
-      COMPANY = 1
+  context "Defining build object class" do
+    class Car
+      attr_accessor :name, :model
     end
 
-    attr_accessor :first_name, :last_name, :type_id, :date_of_birth, :is_private,
-                  :rating, :average_rating, :created_at, :company_name, :id
-
-    attr_accessor :before_build_value, :after_build_value, :before_build_children_value
-
-    attr_accessor :emails, :address
-
-    def initialize
-      @emails  = []
-      @address = Address.new
-    end
-  end
-
-  context "Set root class" do
-    it "should set specified root class" do
-      class TestBuilder
+    it "should build object of the specified class in build_rules_for" do
+      class TestCarBuilder
         include AggregateBuilder::Buildable
 
-        build_rules_for Contact do
+        build_rules_for Car do
+          fields :name, :model
         end
       end
 
-      rules = TestBuilder.send(:builder_rules)
-      rules.root_class.should == Contact
+      builder = TestCarBuilder.new
+      builder.build(nil, {
+        name: 'Porshe', model: 'Cayene'
+      }).should be_instance_of(Car)
     end
 
-    it "should properly define root class from aggregate name" do
-      class ContactBuilder
+    it "should automatically define build object class from aggregate name" do
+      class CarBuilder
         include AggregateBuilder::Buildable
 
         build_rules do
+          fields :name, :model
         end
       end
 
-      rules = ContactBuilder.send(:builder_rules)
-      rules.root_class.should == Contact
+      builder = CarBuilder.new
+      builder.build(nil, {
+        name: 'Porshe', model: 'Cayene'
+      }).should be_instance_of(Car)
     end
 
-    it "should raise error when root class was not defined" do
+    it "should raise error when build class was not found" do
       expect do
-        class TestFactory
+        class TestBuilder
           include AggregateBuilder::Buildable
 
           build_rules do
@@ -66,24 +49,65 @@ describe AggregateBuilder::Buildable do
   end
 
   context "Build defaults" do
+    class Animal
+      attr_accessor :name, :type
+    end
+
     it "should allows to assign defaults" do
-      class DefaultBuilder
+      class AnimalBuilder
         include AggregateBuilder::Buildable
 
         build_defaults do
           before_build :setup_defaults
         end
 
-        def setup_defaults
+        build_rules do
+          fields :name, :type
+        end
+
+        def setup_defaults(animal, attributes)
+          attributes[:type] = :mammal
         end
       end
 
-      rules = DefaultBuilder.send(:builder_rules)
-      rules.callbacks.callbacks_by_type(:before).size.should == 1
+      builder = AnimalBuilder.new
+      animal = builder.build(nil, name: 'Dog')
+      animal.type.should == 'mammal'
     end
   end
 
-  context "Assign attributes" do
+  context "Assigning attributes" do
+    class Email
+      module EmailTypes
+        HOME = 0
+        WORK = 1
+      end
+      attr_accessor :email, :type, :id
+    end
+
+    class Address
+      attr_accessor :street, :city, :postal_code, :state, :id
+    end
+
+    class Contact
+      module ContactTypes
+        PERSON  = 0
+        COMPANY = 1
+      end
+
+      attr_accessor :first_name, :last_name, :type_id, :date_of_birth, :is_private,
+        :rating, :average_rating, :created_at, :company_name, :id
+
+      attr_accessor :before_build_value, :after_build_value, :before_build_children_value
+
+      attr_accessor :emails, :address
+
+      def initialize
+        @emails  = []
+        @address = Address.new
+      end
+    end
+
     class EmailBuilder
       include AggregateBuilder::Buildable
 
@@ -101,7 +125,7 @@ describe AggregateBuilder::Buildable do
       end
     end
 
-    class FullContactBuilder
+    class ContactBuilder
       include AggregateBuilder::Buildable
 
       config_builder do
@@ -197,7 +221,7 @@ describe AggregateBuilder::Buildable do
         }
       }
 
-      builder = FullContactBuilder.new
+      builder = ContactBuilder.new
       builder.build(nil, attributes)
     end
 
@@ -225,7 +249,7 @@ describe AggregateBuilder::Buildable do
           }
         }
 
-        builder = FullContactBuilder.new
+        builder = ContactBuilder.new
         contact = builder.build(nil, attributes)
         contact.address
       end
@@ -253,7 +277,7 @@ describe AggregateBuilder::Buildable do
         email = Email.new
         email.id = 2
         contact.emails << email
-        builder = FullContactBuilder.new
+        builder = ContactBuilder.new
         contact = builder.build(contact, attributes)
       end
 

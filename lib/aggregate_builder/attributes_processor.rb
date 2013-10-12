@@ -13,7 +13,9 @@ module AggregateBuilder
       @builder_rules.fields_collection.each do |field|
         field_key = find_key_or_alias(field, keys)
         value = process_attribute(field, field_key)
-        processed_attributes[field.field_name] = value
+        if attributes[field_key] || value
+          processed_attributes[field.field_name] = value
+        end
       end
       processed_attributes
     end

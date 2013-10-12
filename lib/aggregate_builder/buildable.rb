@@ -50,6 +50,8 @@ module AggregateBuilder
         else
           raise Errors::UndefinedRootClassError, "Unable to set aggregate class from builder name"
         end
+      rescue NameError => e
+        raise Errors::UndefinedRootClassError, "Unable to set aggregate class from builder name"
       end
 
       def get_or_build_rules
@@ -63,8 +65,8 @@ module AggregateBuilder
 
       attributes = attributes.dup
       (entity_or_nil || builder_rules.root_class.new).tap do |entity|
-        processed_attributes = process_attributes(attributes, entity)
         run_before_build_callbacks(entity, attributes)
+        processed_attributes = process_attributes(attributes, entity)
         set_attributes(entity, processed_attributes)
         run_before_build_children_callbacks(entity, attributes)
         build_nested_associations(entity, attributes)
@@ -112,7 +114,9 @@ module AggregateBuilder
 
     def set_attributes(entity, processed_attributes)
       builder_rules.fields_collection.each do |field|
-        entity.send("#{field.field_name}=", processed_attributes[field.field_name])
+        if processed_attributes[field.field_name]
+          entity.send("#{field.field_name}=", processed_attributes[field.field_name])
+        end
       end
     end
 
