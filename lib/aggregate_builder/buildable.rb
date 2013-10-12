@@ -55,7 +55,7 @@ module AggregateBuilder
       end
 
       def get_or_build_rules
-        self.builder_rules || self.builder_rules = Metadata::BuilderRules.new
+        self.builder_rules ||= Metadata::BuilderRules.new
       end
     end
 
@@ -66,11 +66,14 @@ module AggregateBuilder
       attributes = attributes.dup
       (entity_or_nil || builder_rules.root_class.new).tap do |entity|
         run_before_build_callbacks(entity, attributes)
-        processed_attributes = process_attributes(attributes, entity)
-        set_attributes(entity, processed_attributes)
-        run_before_build_children_callbacks(entity, attributes)
-        build_nested_associations(entity, attributes)
-        run_after_build_callbacks(entity, attributes)
+
+        casted_attributes = cast_attributes(attributes, entity)
+        set_attributes(entity, casted_attributes)
+
+        run_before_build_children_callbacks(entity, casted_attributes)
+        build_children(entity, attributes)
+
+        run_after_build_callbacks(entity, casted_attributes)
       end
     end
 
@@ -81,7 +84,7 @@ module AggregateBuilder
     private
 
     def attribute_for(field, attributes)
-      processor = AttributesProcessor.new(builder_rules, self)
+      processor = AttributesCaster.new(builder_rules, self)
       processor.attribute_for(field, attributes)
     end
 
@@ -107,9 +110,9 @@ module AggregateBuilder
       end
     end
 
-    def process_attributes(attributes, entity)
-      processor = AttributesProcessor.new(builder_rules, self)
-      processor.process(attributes, entity)
+    def cast_attributes(attributes, entity)
+      caster = AttributesCaster.new(builder_rules, self)
+      caster.cast(attributes, entity)
     end
 
     def set_attributes(entity, processed_attributes)
@@ -120,9 +123,9 @@ module AggregateBuilder
       end
     end
 
-    def build_nested_associations(entity, attributes)
-      processor = ChildrenProcessor.new(builder_rules, self)
-      processor.process(entity, attributes)
+    def build_children(entity, attributes)
+      caster = ChildrenCaster.new(builder_rules, self)
+      caster.cast(entity, attributes)
     end
   end
 end

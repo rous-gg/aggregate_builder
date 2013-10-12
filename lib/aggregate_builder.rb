@@ -13,9 +13,9 @@ require "aggregate_builder/type_casters/date_caster"
 require "aggregate_builder/type_casters/integer_caster"
 require "aggregate_builder/type_casters/time_caster"
 
-require "aggregate_builder/base_processor"
-require "aggregate_builder/attributes_processor"
-require "aggregate_builder/children_processor"
+require "aggregate_builder/base_caster"
+require "aggregate_builder/attributes_caster"
+require "aggregate_builder/children_caster"
 require "aggregate_builder/buildable"
 
 require "aggregate_builder/metadata/field_metadata"

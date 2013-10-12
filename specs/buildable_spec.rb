@@ -187,7 +187,7 @@ describe AggregateBuilder::Buildable do
         field  :is_private, type: :boolean
         field  :created_at, type: :time
         field  :company_name do |entity, attributes|
-          default_company_name
+          'John Doe Inc.'
         end
       end
     end
@@ -281,7 +281,7 @@ describe AggregateBuilder::Buildable do
         }
       })
       motocycle.name.should == 'Suzuki'
-      motocycle.wheels.count == 1
+      motocycle.wheels.count.should == 1
       motocycle.wheels.first.manufacturer.should == 'Nokian'
       motocycle.engine.model.should == 'BSX75'
     end

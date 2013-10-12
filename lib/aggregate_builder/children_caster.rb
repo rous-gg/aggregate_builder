@@ -1,11 +1,11 @@
 module AggregateBuilder
-  class ChildrenProcessor < BaseProcessor
+  class ChildrenCaster < BaseCaster
     def initialize(builder_rules, builder)
       @builder_rules = builder_rules
       @builder       = builder
     end
 
-    def process(entity, attributes)
+    def cast(entity, attributes)
       @attributes = attributes
       @entity     = entity
       attributes_keys = extract_attributes_keys(attributes)
