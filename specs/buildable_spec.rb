@@ -270,7 +270,7 @@ describe AggregateBuilder::Buildable do
   end
 
   context "Required fields" do
-    class FieldWithRequirenmnets
+    class FieldWithRequirements
       attr_accessor :required_field
       attr_accessor :required_field_with_condition
       attr_accessor :not_required_field
@@ -283,7 +283,7 @@ describe AggregateBuilder::Buildable do
         unmapped_fields_error_level :error
       end
 
-      build_rules_for FieldWithRequirenmnets do
+      build_rules_for FieldWithRequirements do
         field :required_field, required: true
         field :required_field_with_condition, required: :required_condition
         field :not_required_field
@@ -298,27 +298,23 @@ describe AggregateBuilder::Buildable do
 
     it "should raise error when required field is missing" do
       builder = RequiredFieldBuilder.new
-      lambda do
-        builder.build(
-          nil,
-          {required_field_with_condition: 'required_field_with_condition'}
-        )
-      end.should raise_error(AggregateBuilder::Errors::RequireAttributeMissingError)
+      expect do
+        builder.build(nil, {required_field_with_condition: 'required_field_with_condition'})
+      end.to raise_error(AggregateBuilder::Errors::RequireAttributeMissingError,
+                         "Required field required_field is missing for RequiredFieldBuilder builder")
     end
 
     it "should raise error when required field with condition is missing" do
       builder = RequiredFieldBuilder.new
-      lambda do
-        builder.build(
-          nil,
-          {required_field: 'required_field'}
-        )
-      end.should raise_error(AggregateBuilder::Errors::RequireAttributeMissingError)
+      expect do
+        builder.build(nil, {required_field: 'required_field'})
+      end.to raise_error(AggregateBuilder::Errors::RequireAttributeMissingError,
+                         "Required field required_field_with_condition is missing for RequiredFieldBuilder builder")
     end
 
     it "should not raise error when required field present" do
       builder = RequiredFieldBuilder.new
-      lambda do
+      expect do
         field = builder.build(
           nil,
           {
@@ -326,7 +322,7 @@ describe AggregateBuilder::Buildable do
             required_field_with_condition: 'required_field_with_condition'
           }
         )
-      end.should_not raise_error
+      end.to_not raise_error
     end
   end
 
