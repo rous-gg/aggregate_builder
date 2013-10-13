@@ -11,13 +11,12 @@ module AggregateBuilder
 
     def cast
       casted_attributes = {}
+
       @builder_rules.fields_collection.each do |field|
-        field_key = field.key_from(@attributes)
-        casted_value = cast_attribute(field, field_key)
-        if @attributes[field_key] || casted_value
-          casted_attributes[field.field_name] = casted_value
-        end
+        casted_value = cast_field(field)
+        casted_attributes[field.field_name] = casted_value
       end
+
       casted_attributes
     end
 
@@ -37,28 +36,23 @@ module AggregateBuilder
 
     private
 
-    def cast_attribute(field, field_key)
+    def cast_field(field)
+      field_key = field.key_from(@attributes)
       if !field_key && field.required?(@builder, @entity, @attributes)
         @errors_notifier.notify_missing_attribute(field, @builder)
       end
-
-      value = @builder.instance_exec(
-        @entity,
-        @attributes,
-        &field.value_processor
-      ) if field.has_processing?
-
       field_key ||= field.field_name
-      cast_value(field, field_key, value)
-    end
 
-    def cast_value(field, field_key, value)
-      value ||= @attributes[field_key] || @attributes[field_key.to_s]
+      if field.has_processing?
+        value = @builder.instance_exec(@entity, @attributes, &field.value_processor)
+      else
+        value = @attributes[field_key] || @attributes[field_key.to_s]
+      end
+
       field.type_caster.clean(value)
-    rescue => e
+    rescue Errors::TypeCastingError => e
       @errors_notifier.notify_casting_error(e)
     end
-
 
   end
 end
