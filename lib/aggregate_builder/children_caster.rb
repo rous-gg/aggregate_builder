@@ -1,5 +1,6 @@
 module AggregateBuilder
   class ChildrenCaster
+
     def initialize(builder_rules, builder, attributes, entity)
       @builder_rules = builder_rules
       @builder       = builder
