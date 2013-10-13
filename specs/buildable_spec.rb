@@ -216,6 +216,21 @@ describe AggregateBuilder::Buildable do
     end
   end
 
+  context "Updating objects" do
+    pending "Implement this"
+    it "should update object" do
+
+    end
+
+    it "should update nested objects" do
+
+    end
+
+    it "should delete marked for deletion nested objects" do
+
+    end
+  end
+
   context "Building children objects" do
     class Motocycle
       attr_accessor :name, :wheels, :engine
@@ -248,7 +263,6 @@ describe AggregateBuilder::Buildable do
         field :model
       end
     end
-
 
     class MotocycleBuilder
       include AggregateBuilder::Buildable
