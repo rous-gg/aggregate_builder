@@ -47,3 +47,4 @@ Discuss:
     before_children_build callback will be unnnecessary
 3. rename FieldMetadata to Field, ChildMetadata to (ChildField < Field)
 4. iteration through attributes instead of fields_collection
+5. remove raquired: true, cause it's usually is validation logic and validators do it anyway
