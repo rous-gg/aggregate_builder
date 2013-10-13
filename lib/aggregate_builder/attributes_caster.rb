@@ -1,34 +1,34 @@
 module AggregateBuilder
   class AttributesCaster < BaseCaster
 
-    def initialize(builder_rules, builder)
+    def initialize(builder_rules, builder, attributes, entity)
       @builder_rules = builder_rules
       @builder       = builder
+      @attributes    = attributes
+      @entity        = entity
     end
 
-    def cast(attributes, entity)
-      keys = extract_attributes_keys(attributes)
-      @attributes = attributes
-      @entity     = entity
+    def cast
+      keys = extract_attributes_keys
       casted_attributes = {}
       @builder_rules.fields_collection.each do |field|
         field_key = find_key_or_alias(field, keys)
         value = process_attribute(field, field_key)
-        if attributes[field_key] || value
+        if @attributes[field_key] || value
           casted_attributes[field.field_name] = value
         end
       end
       casted_attributes
     end
 
-    def attribute_for(field_name, attributes)
+    def attribute_for(field_name)
       field = @builder_rules.fields_collection.find(field_name)
       if field
         alias_key = field.keys.detect do |key|
-          attributes.has_key?(key) || attributes.has_key?(key.to_s)
+          @attributes.has_key?(key) || @attributes.has_key?(key.to_s)
         end
         if alias_key
-          attributes[alias_key] || attributes[alias_key.to_s]
+          @attributes[alias_key] || @attributes[alias_key.to_s]
         end
       else
         raise Errors::FieldNotDefinedError, "Specified field is not defined"

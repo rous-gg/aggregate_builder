@@ -84,8 +84,8 @@ module AggregateBuilder
     private
 
     def attribute_for(field, attributes)
-      processor = AttributesCaster.new(builder_rules, self)
-      processor.attribute_for(field, attributes)
+      processor = AttributesCaster.new(builder_rules, self, attributes, nil)
+      processor.attribute_for(field)
     end
 
     def run_before_build_callbacks(entity, attributes)
@@ -111,8 +111,8 @@ module AggregateBuilder
     end
 
     def cast_attributes(attributes, entity)
-      caster = AttributesCaster.new(builder_rules, self)
-      caster.cast(attributes, entity)
+      caster = AttributesCaster.new(builder_rules, self, attributes, entity)
+      caster.cast
     end
 
     def set_attributes(entity, processed_attributes)
@@ -124,8 +124,8 @@ module AggregateBuilder
     end
 
     def build_children(entity, attributes)
-      caster = ChildrenCaster.new(builder_rules, self)
-      caster.cast(entity, attributes)
+      caster = ChildrenCaster.new(builder_rules, self, attributes, entity)
+      caster.cast
     end
   end
 end

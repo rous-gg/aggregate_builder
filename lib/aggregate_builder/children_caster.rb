@@ -1,23 +1,23 @@
 module AggregateBuilder
   class ChildrenCaster < BaseCaster
-    def initialize(builder_rules, builder)
+    def initialize(builder_rules, builder, attributes, entity)
       @builder_rules = builder_rules
       @builder       = builder
+      @attributes    = attributes
+      @entity        = entity
     end
 
-    def cast(entity, attributes)
-      @attributes = attributes
-      @entity     = entity
-      attributes_keys = extract_attributes_keys(attributes)
+    def cast
+      attributes_keys = extract_attributes_keys
 
       @builder_rules.children_rules.each do |child_metadata|
         raise ArgumentError, "You should define builder class for #{child_metadata.child_name}" if !child_metadata.builder
         child_key = find_key_or_alias(child_metadata, attributes_keys)
         if child_key
-          association_attributes = attributes[child_key] || attributes[child_key.to_s]
+          association_attributes = @attributes[child_key] || @attributes[child_key.to_s]
           next if !association_attributes
 
-          children_or_child = entity.send(child_metadata.child_name)
+          children_or_child = @entity.send(child_metadata.child_name)
 
           if children_or_child.respond_to?(:each)
             if !(association_attributes.is_a?(Array) && association_attributes.all? {|a| a.is_a?(Hash)})
@@ -34,12 +34,12 @@ module AggregateBuilder
 
               if should_build?(child_metadata, attrs)
                 if child && should_delete?(child_metadata, attrs)
-                  entity.send(child_metadata.child_name).delete_if do |child_entity|
+                  @entity.send(child_metadata.child_name).delete_if do |child_entity|
                     child_entity == child
                   end
                 else
                   builder = get_builder(child_metadata)
-                  entity.send(child_metadata.child_name) << builder.build(child, attrs)
+                  @entity.send(child_metadata.child_name) << builder.build(child, attrs)
                 end
               end
             end
@@ -55,10 +55,10 @@ module AggregateBuilder
             end
             if should_build?(child_metadata, association_attributes)
               if should_delete?(child_metadata, association_attributes)
-                entity.send("#{child_metadata.child_name}=", nil)
+                @entity.send("#{child_metadata.child_name}=", nil)
               else
                 builder = get_builder(child_metadata)
-                entity.send(
+                @entity.send(
                   "#{child_metadata.child_name}=",
                   builder.build(children_or_child, association_attributes)
                 )
