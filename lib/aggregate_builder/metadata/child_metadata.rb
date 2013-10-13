@@ -18,6 +18,14 @@ module AggregateBuilder
         [@child_name] + aliases
       end
 
+      # TODO: optimize this
+      def key_from(attributes)
+        attrs_keys = attributes.keys.map(&:to_sym)
+        keys.detect do |key|
+          attrs_keys.include?(key)
+        end
+      end
+
       private
 
       def extract_aliases(options)

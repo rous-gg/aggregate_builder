@@ -13,7 +13,7 @@ require "aggregate_builder/type_casters/date_caster"
 require "aggregate_builder/type_casters/integer_caster"
 require "aggregate_builder/type_casters/time_caster"
 
-require "aggregate_builder/base_caster"
+require "aggregate_builder/errors_notifier"
 require "aggregate_builder/attributes_caster"
 require "aggregate_builder/children_caster"
 require "aggregate_builder/buildable"

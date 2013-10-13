@@ -1,5 +1,5 @@
 module AggregateBuilder
-  class ChildrenCaster < BaseCaster
+  class ChildrenCaster
     def initialize(builder_rules, builder, attributes, entity)
       @builder_rules = builder_rules
       @builder       = builder
@@ -8,12 +8,9 @@ module AggregateBuilder
     end
 
     def cast
-      attributes_keys = extract_attributes_keys
-
       @builder_rules.children_rules.each do |child_metadata|
         raise ArgumentError, "You should define builder class for #{child_metadata.child_name}" if !child_metadata.builder
-        child_key = find_key_or_alias(child_metadata, attributes_keys)
-        if child_key
+        if child_key = child_metadata.key_from(@attributes)
           association_attributes = @attributes[child_key] || @attributes[child_key.to_s]
           next if !association_attributes
 
