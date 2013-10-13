@@ -46,3 +46,4 @@ Discuss:
     Also, passing a block into nested_field will preprocess children attributes, then
     before_children_build callback will be unnnecessary
 3. rename FieldMetadata to Field, ChildMetadata to (ChildField < Field)
+4. iteration through attributes instead of fields_collection
