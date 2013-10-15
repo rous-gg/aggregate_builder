@@ -16,8 +16,8 @@ module AggregateBuilder
         @rules.add_field(field_name, field_options, &block)
       end
 
-      def build_children(child_name, options = {}, &block)
-        @rules.add_children(child_name, options, &block)
+      def nested_field(field_name, field_options = {}, &block)
+        @rules.add_nested_field(field_name, field_options, &block)
       end
 
       def before_build(method_name = nil, &block)

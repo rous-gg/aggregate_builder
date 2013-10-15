@@ -100,7 +100,7 @@ module AggregateBuilder
       end
     end
 
-    def should_build?(child_metadata, association_attributes)
+    def should_build?(field, association_attributes)
       if child_metadata.reject_if_block
         !@builder.instance_exec(
           @entity,

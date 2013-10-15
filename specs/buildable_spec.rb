@@ -76,55 +76,6 @@ describe AggregateBuilder::Buildable do
     end
   end
 
-  context "Checking required fields" do
-    class Bike
-      attr_accessor :name, :model, :max_speed
-    end
-
-    class BikeBuilder
-      include AggregateBuilder::Buildable
-
-      config_builder do
-        unmapped_fields_error_level :error # raise exceptions
-      end
-
-      build_rules_for Bike do
-        field :name, required: true
-        field :model, required: :model_required?
-        field :max_speed
-      end
-
-      private
-
-      def model_required?(entity, attributes)
-        true
-      end
-    end
-
-    it "should raise error when required field is missing" do
-      builder = BikeBuilder.new
-      expect do
-        builder.build(nil, { model: 'AS7', max_speed: 70 })
-      end.to raise_error(AggregateBuilder::Errors::RequireAttributeMissingError,
-                         "Required field name is missing for BikeBuilder builder")
-    end
-
-    it "should raise error when required field with condition is missing" do
-      builder = BikeBuilder.new
-      expect do
-        builder.build(nil, { name: 'Astra', max_speed: 70 })
-      end.to raise_error(AggregateBuilder::Errors::RequireAttributeMissingError,
-                         "Required field model is missing for BikeBuilder builder")
-    end
-
-    it "should not raise error when required field present" do
-      builder = BikeBuilder.new
-      expect do
-        field = builder.build(nil, { name: 'Astra', model: 'AS7' })
-      end.to_not raise_error
-    end
-  end
-
   context "Inheritance" do
     class BaseBuilder
       include AggregateBuilder::Buildable
@@ -158,12 +109,12 @@ describe AggregateBuilder::Buildable do
 
     it "should not have rules from other builders" do
       rules = DealBuilder.builder_rules
-      rules.fields_collection.should have(1).item
+      rules.fields_collection.size.should == 1
     end
 
     it "should have proper rules" do
       rules = DealBuilder.builder_rules
-      rules.fields_collection.map(&:field_name).should == [:due_at]
+      rules.fields_collection.find(:due_at).should_not be_nil
     end
   end
 
@@ -179,15 +130,15 @@ describe AggregateBuilder::Buildable do
       build_rules_for Contact do
         fields :first_name, :last_name
         field  :rating, type: :integer do |entity, attributes|
-          attribute_for :rating, attributes
+          attributes[:rating]
         end
         field  :average_rating, type: :float
         field  :date_of_birth, type: :date
         field  :type_id, type: :integer
         field  :is_private, type: :boolean
         field  :created_at, type: :time
-        field  :company_name do |entity, attributes|
-          'John Doe Inc.'
+        field  :company_name do |entity, attrs|
+          attrs[:company_name] = 'John Doe Inc.'
         end
       end
     end
@@ -254,6 +205,7 @@ describe AggregateBuilder::Buildable do
       include AggregateBuilder::Buildable
 
       build_rules do
+        field :id, ignore: true
         field :manufacturer
       end
     end
@@ -262,6 +214,7 @@ describe AggregateBuilder::Buildable do
       include AggregateBuilder::Buildable
 
       build_rules do
+        field :id, ignore: true
         field :model
       end
     end
@@ -270,19 +223,15 @@ describe AggregateBuilder::Buildable do
       include AggregateBuilder::Buildable
 
       build_rules do
+        field :id, ignore: true
         field :name
 
-        build_children :wheels do
-          builder WheelBuilder
-          reject_if do |entity, attributes|
-            attributes[:manufacturer].nil?
-          end
-          deletable true
-        end
+        nested_field :wheels,
+          builder: WheelBuilder,
+          reject_if: ->(entity, attrs){ attrs[:manufacturer].nil? },
+          deletable: true
 
-        build_children :engine do
-          builder EngineBuilder
-        end
+        nested_field :engine, type: :hash, builder: EngineBuilder
       end
     end
 
@@ -298,6 +247,7 @@ describe AggregateBuilder::Buildable do
         }
       })
       motocycle.name.should == 'Suzuki'
+      pp motocycle.wheels
       motocycle.wheels.count.should == 1
       motocycle.wheels.first.manufacturer.should == 'Nokian'
       motocycle.engine.model.should == 'BSX75'

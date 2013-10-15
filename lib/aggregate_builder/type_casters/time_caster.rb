@@ -2,7 +2,7 @@ require 'time'
 
 module AggregateBuilder
   module TypeCasters
-    class TimeCaster
+    class TimeCaster < SingleValueBuilder
       class << self
         def clean(value)
           if value.is_a?(Time) || value.nil?

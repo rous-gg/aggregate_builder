@@ -1,12 +1,11 @@
 module AggregateBuilder
   module Metadata
     class FieldMetadata
-      DEFAULT_CLEANER_TYPE = :string
-
       attr_reader :field_name
       attr_reader :aliases
       attr_reader :type
       attr_reader :value_processor
+      attr_reader :ignore
 
       def initialize(field_name, options = {}, value_processor)
         raise ArgumentError, "You should provide symbolized name for #{field_name}" unless field_name.is_a?(Symbol)
@@ -15,6 +14,7 @@ module AggregateBuilder
         @value_processor  = value_processor
         @type             = extract_type(options)
         @aliases          = extract_aliases(options)
+        @ignore           = options[:ignore] || false
       end
 
       def keys
@@ -23,6 +23,10 @@ module AggregateBuilder
 
       def has_processing?
         !!@value_processor
+      end
+
+      def ignore?
+        @ignore
       end
 
       def required?(method_context, entity, attributes)
@@ -50,12 +54,20 @@ module AggregateBuilder
         if self.type.is_a?(Class)
           self.type
         else
-          type = self.type.to_s.classify
+          type = self.type.to_s.camelcase
           "AggregateBuilder::TypeCasters::#{type}Caster".constantize
         end
       end
 
+      def build(entity, field_value, methods_context, attributes)
+        type_caster.build(entity, self, field_value, methods_context, attributes)
+      end
+
       private
+
+      def default_caster_type
+        :string
+      end
 
       def extract_type(options)
         if !!options[:type]
@@ -65,7 +77,7 @@ module AggregateBuilder
             raise ArgumentError, "You should provide class or symbol"
           end
         else
-          DEFAULT_CLEANER_TYPE
+         default_caster_type
         end
       end
 

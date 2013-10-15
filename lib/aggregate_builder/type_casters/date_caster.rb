@@ -2,7 +2,7 @@ require 'date'
 
 module AggregateBuilder
   module TypeCasters
-    class DateCaster
+    class DateCaster < SingleValueBuilder
       class << self
         def clean(value)
           if value.nil?

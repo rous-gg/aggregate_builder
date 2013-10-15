@@ -1,9 +1,10 @@
 module AggregateBuilder
   module Errors
-    class UndefinedRootClassError < StandardError; end
-    class RequireAttributeMissingError < StandardError; end
-    class TypeCastingError < StandardError; end
-    class AssociationParamsError < StandardError; end
-    class FieldNotDefinedError < StandardError; end
+    class BuildError < StandardError; end
+    class UndefinedRootClassError < BuildError; end
+    class UnexpectedAttribute < BuildError; end
+    class TypeCastingError < BuildError; end
+    class AssociationParamsError < BuildError; end
+    class FieldNotDefinedError < BuildError; end
   end
 end

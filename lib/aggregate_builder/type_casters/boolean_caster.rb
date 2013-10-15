@@ -1,6 +1,6 @@
 module AggregateBuilder
   module TypeCasters
-    class BooleanCaster
+    class BooleanCaster < SingleValueBuilder
       class << self
         def clean(value)
           if [TrueClass, FalseClass, NilClass].include?(value.class)

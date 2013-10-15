@@ -6,12 +6,16 @@ require 'active_support/core_ext/string/inflections.rb'
 require "aggregate_builder/version"
 require "aggregate_builder/errors"
 
+require "aggregate_builder/type_casters/single_value_builder"
+require "aggregate_builder/type_casters/multiple_value_builder"
 require "aggregate_builder/type_casters/string_caster"
 require "aggregate_builder/type_casters/boolean_caster"
 require "aggregate_builder/type_casters/float_caster"
 require "aggregate_builder/type_casters/date_caster"
 require "aggregate_builder/type_casters/integer_caster"
 require "aggregate_builder/type_casters/time_caster"
+require "aggregate_builder/type_casters/array_of_hashes_caster"
+require "aggregate_builder/type_casters/hash_caster"
 
 require "aggregate_builder/errors_notifier"
 require "aggregate_builder/attributes_caster"
@@ -19,6 +23,7 @@ require "aggregate_builder/children_caster"
 require "aggregate_builder/buildable"
 
 require "aggregate_builder/metadata/field_metadata"
+require "aggregate_builder/metadata/nested_field_metadata"
 require "aggregate_builder/metadata/fields_collection"
 
 require "aggregate_builder/metadata/callback_metadata"

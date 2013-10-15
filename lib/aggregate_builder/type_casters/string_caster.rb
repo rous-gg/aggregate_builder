@@ -1,6 +1,6 @@
 module AggregateBuilder
   module TypeCasters
-    class StringCaster
+    class StringCaster < SingleValueBuilder
       class << self
         def clean(value)
           if value.nil? || value.is_a?(String)
@@ -8,7 +8,7 @@ module AggregateBuilder
           elsif value.is_a?(Symbol)
             value.to_s
           else
-            raise Errors::TypeCastingError, "Unable to process string value"
+            raise Errors::TypeCastingError, "Unable to process value, got #{value}"
           end
         end
       end

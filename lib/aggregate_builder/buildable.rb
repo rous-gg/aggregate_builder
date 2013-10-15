@@ -66,14 +66,8 @@ module AggregateBuilder
       attributes = attributes.dup
       (entity_or_nil || builder_rules.root_class.new).tap do |entity|
         run_before_build_callbacks(entity, attributes)
-
-        casted_attributes = cast_attributes(attributes, entity)
-        set_attributes(entity, casted_attributes)
-
-        run_before_build_children_callbacks(entity, casted_attributes)
-        build_children(entity, attributes)
-
-        run_after_build_callbacks(entity, casted_attributes)
+        build_fields(entity, attributes)
+        run_after_build_callbacks(entity, attributes)
       end
     end
 
@@ -82,11 +76,6 @@ module AggregateBuilder
     end
 
     private
-
-    def attribute_for(field, attributes)
-      processor = AttributesCaster.new(builder_rules, self, attributes, nil)
-      processor.attribute_for(field)
-    end
 
     def run_before_build_callbacks(entity, attributes)
       run_callbacks(:before, entity, attributes)
@@ -110,22 +99,9 @@ module AggregateBuilder
       end
     end
 
-    def cast_attributes(attributes, entity)
-      caster = AttributesCaster.new(builder_rules, self, attributes, entity)
-      caster.cast
+    def build_fields(entity, attributes)
+      AttributesCaster.new(builder_rules, attributes, entity, self).cast
     end
 
-    def set_attributes(entity, processed_attributes)
-      builder_rules.fields_collection.each do |field|
-        if processed_attributes[field.field_name]
-          entity.send("#{field.field_name}=", processed_attributes[field.field_name])
-        end
-      end
-    end
-
-    def build_children(entity, attributes)
-      caster = ChildrenCaster.new(builder_rules, self, attributes, entity)
-      caster.cast
-    end
   end
 end

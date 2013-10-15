@@ -1,6 +1,6 @@
 module AggregateBuilder
   module TypeCasters
-    class FloatCaster
+    class FloatCaster < SingleValueBuilder
       class << self
         def clean(value)
           if value.is_a?(Float) || value.nil?
