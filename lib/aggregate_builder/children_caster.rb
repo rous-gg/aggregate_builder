@@ -39,13 +39,16 @@ module AggregateBuilder
 
     def cast_array(children, child_metadata, association_attributes)
       association_attributes.each do |attrs|
-        child = find_child(children, attrs)
-
         if should_build?(child_metadata, attrs)
+          child = find_child(children, attrs)
+
           if child && should_delete?(child_metadata, attrs)
             @entity.send(child_metadata.child_name).delete_if do |child_entity|
               child_entity == child
             end
+          elsif child
+            builder = get_builder(child_metadata)
+            builder.build(child, attrs)
           else
             builder = get_builder(child_metadata)
             @entity.send(child_metadata.child_name) << builder.build(child, attrs)

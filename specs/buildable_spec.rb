@@ -214,26 +214,28 @@ describe AggregateBuilder::Buildable do
       contact.created_at.should == Time.new("2013-09-30 08:58:28 +0400")
       contact.company_name.should == 'John Doe Inc.'
     end
-  end
 
-  context "Updating objects" do
-    pending "Implement this"
-    it "should update object" do
-
-    end
-
-    it "should update nested objects" do
-
-    end
-
-    it "should delete marked for deletion nested objects" do
-
+    it "should update existing built object" do
+      builder = ContactBuilder.new
+      contact = builder.build(nil, {
+        first_name: 'John',
+        last_name: 'Doe',
+        rating: 10,
+        average_rating: '2.1',
+        date_of_birth: '12/09/1965',
+        type_id: 3,
+        is_private: true,
+        created_at: "2013-09-30 08:58:28 +0400",
+      })
+      updated_contact = builder.build(contact, first_name: 'Bill', rating: 20)
+      updated_contact.first_name.should == 'Bill'
+      updated_contact.rating.should == 20
     end
   end
 
   context "Building children objects" do
     class Motocycle
-      attr_accessor :name, :wheels, :engine
+      attr_accessor :id, :name, :wheels, :engine
 
       def initialize
         @wheels = []
@@ -241,11 +243,11 @@ describe AggregateBuilder::Buildable do
     end
 
     class Wheel
-      attr_accessor :manufacturer
+      attr_accessor :id, :manufacturer
     end
 
     class Engine
-      attr_accessor :model
+      attr_accessor :id, :model
     end
 
     class WheelBuilder
@@ -275,6 +277,7 @@ describe AggregateBuilder::Buildable do
           reject_if do |entity, attributes|
             attributes[:manufacturer].nil?
           end
+          deletable true
         end
 
         build_children :engine do
@@ -298,6 +301,45 @@ describe AggregateBuilder::Buildable do
       motocycle.wheels.count.should == 1
       motocycle.wheels.first.manufacturer.should == 'Nokian'
       motocycle.engine.model.should == 'BSX75'
+    end
+
+    it "should update existing child objects" do
+      builder = MotocycleBuilder.new
+      motocycle = builder.build(nil, {
+        name: 'Suzuki',
+        wheels: [
+          { manufacturer: 'Nokian' },
+          { manufacturer: 'Kama' },
+          {},
+        ],
+        engine: {
+          model: 'BSX75',
+        }
+      })
+
+      # set ids to allow updating objects
+      motocycle.id = 1
+      motocycle.wheels[0].id = 1
+      motocycle.wheels[1].id = 2
+      motocycle.engine.id = 1
+
+      updated_motocycle = builder.build(motocycle, {
+        name: 'Kawasaki',
+        wheels: [
+          { manufacturer: 'Peroni', id: 1 },
+          { manufacturer: 'Kama', id: 2, _delete: true },
+          { manufacturer: 'Yetti' },
+        ],
+        engine: {
+          id: 1,
+          model: 'BSX75-2',
+        }
+      })
+      updated_motocycle.name.should == 'Kawasaki'
+      updated_motocycle.wheels.count.should == 2
+      updated_motocycle.wheels[0].manufacturer.should == 'Peroni'
+      updated_motocycle.wheels[1].manufacturer.should == 'Yetti'
+      updated_motocycle.engine.model.should == 'BSX75-2'
     end
   end
 end

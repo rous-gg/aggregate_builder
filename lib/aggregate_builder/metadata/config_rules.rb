@@ -11,7 +11,7 @@ module AggregateBuilder
 
       def initialize
         @search_key = :id
-        @delete_key = :delete
+        @delete_key = :_delete
         @search_key_block = default_search_block
         @delete_key_block = default_delete_block
       end
