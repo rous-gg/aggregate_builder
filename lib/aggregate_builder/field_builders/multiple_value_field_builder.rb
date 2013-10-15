@@ -24,7 +24,7 @@ module AggregateBuilder::FieldBuilders
       end
 
       def find_child(children, association_attributes)
-        search_key = :id
+        search_key = :id # TODO: make it configurable
         search_key_value = association_attributes[search_key] || association_attributes[search_key.to_sym]
         if search_key_value
           #search_key_value = @builder_rules.config.search_key_block.call search_key_value

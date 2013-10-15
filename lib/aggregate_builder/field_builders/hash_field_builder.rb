@@ -29,7 +29,7 @@ module AggregateBuilder::FieldBuilders
         #end
         #end
         if field.deletable?
-          delete_key = DEFAULT_DELETE_KEY
+          delete_key = DEFAULT_DELETE_KEY # TODO: make it configurable
           attrs[delete_key] || attrs[delete_key.to_s]
         end
       end
