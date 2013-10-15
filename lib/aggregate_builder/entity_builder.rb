@@ -16,7 +16,7 @@ module AggregateBuilder
           @errors_notifier.notify_undefined_field_given(attr_name)
           next
         end
-        field.build(@entity, attr_value, @methods_context, @attributes)
+        field.build(@entity, attr_value, @methods_context, @attributes, @builder_rules)
       end
 
     end

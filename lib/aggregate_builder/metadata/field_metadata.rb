@@ -29,8 +29,8 @@ module AggregateBuilder
         @ignore
       end
 
-      def build(entity, field_value, methods_context, attributes)
-        field_builder.build(entity, self, field_value, methods_context, attributes)
+      def build(entity, field_value, methods_context, attrs, builder_rules)
+        field_builder.build(entity, self, field_value, methods_context, attrs, builder_rules)
       end
 
       private

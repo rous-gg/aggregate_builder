@@ -5,13 +5,16 @@ module AggregateBuilder
       attr_reader   :fields_collection
       attr_reader   :callbacks
       attr_reader   :children_rules
+      attr_reader   :search_block
 
       CALLBACKS = [:before, :after, :before_children]
+      DEFAULT_SEARCH_BLOCK = Proc.new {|entity, attrs| entity.id && entity.id == attrs[:id] }
 
       def initialize
-        @config_rules                = ConfigRules.new
-        @fields_collection           = FieldsCollection.new
-        @callbacks                   = CallbacksCollection.new
+        @config_rules         = ConfigRules.new
+        @fields_collection    = FieldsCollection.new
+        @callbacks            = CallbacksCollection.new
+        @search_block         = DEFAULT_SEARCH_BLOCK
       end
 
       def clone
@@ -46,6 +49,10 @@ module AggregateBuilder
         end
         raise ArgumentError, "Unsupported callback type" if !CALLBACKS.include?(callback_type)
         @callbacks.add(callback_type, method_name, &block)
+      end
+
+      def set_search_block(&search_block)
+        @search_block = search_block
       end
 
       def silent_level?

@@ -20,6 +20,10 @@ module AggregateBuilder
         @rules.add_nested_field(field_name, field_options, &block)
       end
 
+      def search_block(&block)
+        @rules.set_search_block(&block)
+      end
+
       def before_build(method_name = nil, &block)
         @rules.add_callback(:before, method_name, &block)
       end

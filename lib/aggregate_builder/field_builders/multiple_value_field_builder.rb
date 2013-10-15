@@ -2,13 +2,13 @@ module AggregateBuilder::FieldBuilders
   class MultipleValueFieldBuilder
     class << self
 
-      def build(entity, field, field_values, methods_context, full_attributes)
+      def build(entity, field, field_values, methods_context, full_attributes, build_rules)
         return if field.ignore?
         field_values = clean(field_values)
         field_values.each do |attrs|
           if should_build?(field, methods_context, entity, attrs)
             children = entity.send(field.field_name)
-            child = find_child(children, attrs)
+            child = find_child(children, attrs, field, build_rules)
 
             if child && should_delete?(field, attrs)
               entity.send(field.field_name).delete_if do |child_entity|
@@ -23,14 +23,10 @@ module AggregateBuilder::FieldBuilders
         end
       end
 
-      def find_child(children, association_attributes)
-        search_key = :id # TODO: make it configurable
-        search_key_value = association_attributes[search_key] || association_attributes[search_key.to_sym]
-        if search_key_value
-          #search_key_value = @builder_rules.config.search_key_block.call search_key_value
-          children.detect do |child|
-            child.send(search_key) == search_key_value
-          end
+      def find_child(children, attrs, field, build_rules)
+        search_block = field.search_block || build_rules.search_block
+        children.detect do |child|
+          search_block.call(child, attrs)
         end
       end
 

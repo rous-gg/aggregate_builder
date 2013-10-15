@@ -2,7 +2,7 @@ module AggregateBuilder::FieldBuilders
   class SingleValueFieldBuilder
     class << self
 
-      def build(entity, field, field_value, methods_context, full_attributes)
+      def build(entity, field, field_value, methods_context, full_attributes, build_rules)
         return if field.ignore?
         field_value = clean(field_value)
         if field.has_processing?

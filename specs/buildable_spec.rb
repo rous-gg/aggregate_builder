@@ -247,7 +247,6 @@ describe AggregateBuilder::Buildable do
         }
       })
       motocycle.name.should == 'Suzuki'
-      pp motocycle.wheels
       motocycle.wheels.count.should == 1
       motocycle.wheels.first.manufacturer.should == 'Nokian'
       motocycle.engine.model.should == 'BSX75'
@@ -290,6 +289,90 @@ describe AggregateBuilder::Buildable do
       updated_motocycle.wheels[0].manufacturer.should == 'Peroni'
       updated_motocycle.wheels[1].manufacturer.should == 'Yetti'
       updated_motocycle.engine.model.should == 'BSX75-2'
+    end
+  end
+
+  context "Setting custom search block" do
+    class Book
+      attr_accessor :name, :authors, :pages
+
+      def initialize
+        @authors = []
+        @pages   = []
+      end
+    end
+
+    class Writer
+      attr_accessor :first_name, :last_name, :age
+    end
+
+    class Page
+      attr_accessor :number, :content
+    end
+
+    class WriterBuilder
+      include AggregateBuilder::Buildable
+      build_rules Writer do
+        field :first_name
+        field :last_name
+        field :age, type: :integer
+      end
+    end
+
+    class PageBuilder
+      include AggregateBuilder::Buildable
+      build_rules Page do
+        field :number, ignore: true
+        field :content
+      end
+    end
+
+
+    class BookBuilder
+      include AggregateBuilder::Buildable
+      build_rules Book do
+        field :name
+        nested_field :authors, deletable: true, builder: WriterBuilder,
+                               search_block: ->(author, attrs){ author.first_name == attrs[:first_name] && author.last_name == attrs[:last_name] }
+        nested_field :pages, deletable: true, builder: PageBuilder,
+                               search_block: ->(page, attrs){ page.number && page.number == attrs[:number] }
+      end
+    end
+
+
+    describe "build with custom id field" do
+      it "should update find and update books by custom id field" do
+        book_builder = BookBuilder.new
+        book = book_builder.build(nil, {
+          name: 'Funny games',
+          authors: [
+            { first_name: 'Bill', last_name: 'Smith', age: 30 },
+            { first_name: 'John', last_name: 'Snow', age: 23 },
+          ],
+          pages: [
+            { content: 'First page' },
+            { content: 'Second page' },
+          ]
+        })
+
+        # set search keys
+        book.pages[0].number = 1
+        book.pages[1].number = 2
+        pp book
+
+        book_builder.build(book, {
+          name: 'Funny games',
+          authors: [
+            { first_name: 'Bill', last_name: 'Smith', age: 32 },
+            { first_name: 'John', last_name: 'Snow', age: 25 },
+          ],
+          pages: [
+            { number: 1, content: 'Updated first page' },
+            { numbder: 2, content: 'Second page', _delete: true },
+            { content: 'Third page' },
+          ]
+        })
+      end
     end
   end
 end

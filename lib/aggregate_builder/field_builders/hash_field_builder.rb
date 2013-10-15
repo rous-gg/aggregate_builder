@@ -11,7 +11,7 @@ module AggregateBuilder::FieldBuilders
         value
       end
 
-      def build(entity, field, attrs, methods_context, full_attributes)
+      def build(entity, field, attrs, methods_context, full_attributes, build_rules)
         child = entity.send(field.field_name)
         if should_delete?(field, attrs)
           entity.send("#{field.child_name}=", nil)

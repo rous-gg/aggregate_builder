@@ -7,8 +7,10 @@ module AggregateBuilder
     end
 
     module ClassMethods
-      def inherited(base)
-        base.builder_rules = self.builder_rules.clone if self.builder_rules
+      def inherited(subclass)
+        if self.builder_rules
+          subclass.builder_rules = self.builder_rules.clone
+        end
       end
 
       def config_builder(&block)
