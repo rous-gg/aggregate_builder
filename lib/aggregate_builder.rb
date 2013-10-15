@@ -19,7 +19,7 @@ require "aggregate_builder/field_builders/array_of_hashes_field_builder"
 require "aggregate_builder/field_builders/hash_field_builder"
 
 require "aggregate_builder/errors_notifier"
-require "aggregate_builder/attributes_caster"
+require "aggregate_builder/entity_builder"
 require "aggregate_builder/buildable"
 
 require "aggregate_builder/metadata/field_metadata"

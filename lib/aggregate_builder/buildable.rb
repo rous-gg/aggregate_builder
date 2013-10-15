@@ -66,7 +66,7 @@ module AggregateBuilder
       attributes = attributes.dup
       (entity_or_nil || builder_rules.root_class.new).tap do |entity|
         run_before_build_callbacks(entity, attributes)
-        build_fields(entity, attributes)
+        build_entity(entity, attributes)
         run_after_build_callbacks(entity, attributes)
       end
     end
@@ -99,8 +99,8 @@ module AggregateBuilder
       end
     end
 
-    def build_fields(entity, attributes)
-      AttributesCaster.new(builder_rules, attributes, entity, self).cast
+    def build_entity(entity, attributes)
+      EntityBuilder.new(builder_rules, attributes, entity, self).build
     end
 
   end

@@ -1,5 +1,5 @@
 module AggregateBuilder
-  class AttributesCaster
+  class EntityBuilder
 
     def initialize(builder_rules, attributes, entity, methods_context)
       @builder_rules   = builder_rules
@@ -9,7 +9,7 @@ module AggregateBuilder
       @errors_notifier = ErrorsNotifier.new(@builder_rules)
     end
 
-    def cast
+    def build
       @attributes.each do |attr_name, attr_value|
         field = @builder_rules.fields_collection.find(attr_name)
         unless field

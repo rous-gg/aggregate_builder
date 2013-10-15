@@ -1,6 +1,5 @@
 module AggregateBuilder::FieldBuilders
   class BooleanFieldBuilder < SingleValueFieldBuilder
-
     class << self
 
       def clean(value)
@@ -22,6 +21,5 @@ module AggregateBuilder::FieldBuilders
       end
 
     end
-
   end
 end

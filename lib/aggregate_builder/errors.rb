@@ -1,6 +1,7 @@
 module AggregateBuilder
   module Errors
     class BuildError < StandardError; end
+
     class UndefinedRootClassError < BuildError; end
     class UnexpectedAttribute < BuildError; end
     class TypeCastingError < BuildError; end
