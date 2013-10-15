@@ -1,8 +1,8 @@
 require 'date'
 
 module AggregateBuilder
-  module TypeCasters
-    class DateCaster < SingleValueBuilder
+  module FieldBuilders
+    class DateFieldBuilder < SingleValueFieldBuilder
       class << self
         def clean(value)
           if value.nil?

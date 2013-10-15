@@ -1,6 +1,7 @@
 module AggregateBuilder
-  module TypeCasters
-    class SingleValueBuilder
+  module FieldBuilders
+    class SingleValueFieldBuilder
+
       class << self
         def build(entity, field, field_value, methods_context, full_attributes)
           return if field.ignore?
@@ -16,5 +17,6 @@ module AggregateBuilder
         end
       end
     end
+
   end
 end

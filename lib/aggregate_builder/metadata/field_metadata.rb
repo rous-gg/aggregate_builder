@@ -29,41 +29,20 @@ module AggregateBuilder
         @ignore
       end
 
-      def required?(method_context, entity, attributes)
-        if @options[:required]
-          if @options[:required].is_a?(Symbol)
-            method_context.send(@options[:required], entity, attributes)
-          else
-            true
-          end
-        else
-          false
-        end
-        @options[:required] || false
-      end
-
-      # TODO: optimize this
-      def key_from(attributes)
-        attrs_keys = attributes.keys.map(&:to_sym)
-        keys.detect do |key|
-          attrs_keys.include?(key)
-        end
-      end
-
-      def type_caster
-        if self.type.is_a?(Class)
-          self.type
-        else
-          type = self.type.to_s.camelcase
-          "AggregateBuilder::TypeCasters::#{type}Caster".constantize
-        end
-      end
-
       def build(entity, field_value, methods_context, attributes)
-        type_caster.build(entity, self, field_value, methods_context, attributes)
+        field_builder.build(entity, self, field_value, methods_context, attributes)
       end
 
       private
+
+      def field_builder
+        if self.type.is_a?(Class)
+          self.type
+        else
+          FieldBuilders.find_field_builder_by_name(self.type)
+        end
+      end
+
 
       def default_caster_type
         :string

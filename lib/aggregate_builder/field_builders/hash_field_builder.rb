@@ -1,6 +1,6 @@
 module AggregateBuilder
-  module TypeCasters
-    class HashCaster < SingleValueBuilder
+  module FieldBuilders
+    class HashFieldBuilder < SingleValueFieldBuilder
       class << self
         def clean(value)
           unless value.is_a?(Hash)

@@ -1,6 +1,6 @@
 module AggregateBuilder
-  module TypeCasters
-    class StringCaster < SingleValueBuilder
+  module FieldBuilders
+    class StringFieldBuilder < SingleValueFieldBuilder
       class << self
         def clean(value)
           if value.nil? || value.is_a?(String)

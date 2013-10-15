@@ -1,9 +1,11 @@
 require 'time'
 
 module AggregateBuilder
-  module TypeCasters
-    class TimeCaster < SingleValueBuilder
+  module FieldBuilders
+    class TimeFieldBuilder < SingleValueFieldBuilder
+
       class << self
+
         def clean(value)
           if value.is_a?(Time) || value.nil?
             value
@@ -15,7 +17,9 @@ module AggregateBuilder
         rescue => e
           raise Errors::TypeCastingError, "Unable to process time value"
         end
+
       end
+
     end
   end
 end

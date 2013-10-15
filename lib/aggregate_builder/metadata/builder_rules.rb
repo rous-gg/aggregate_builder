@@ -11,7 +11,6 @@ module AggregateBuilder
       def initialize
         @config_rules                = ConfigRules.new
         @fields_collection           = FieldsCollection.new
-        @children_rules              = ChildrenRules.new
         @callbacks                   = CallbacksCollection.new
       end
 
@@ -19,7 +18,6 @@ module AggregateBuilder
         clonned = self.class.new
         clonned.instance_variable_set(:@config_rules,      @config_rules.dup)
         clonned.instance_variable_set(:@fields_collection, @fields_collection.clone)
-        clonned.instance_variable_set(:@children_rules,    @children_rules.clone)
         clonned.instance_variable_set(:@callbacks,         @callbacks.clone)
         clonned
       end

@@ -1,6 +1,6 @@
 module AggregateBuilder
-  module TypeCasters
-    class MultipleValueBuilder
+  module FieldBuilders
+    class MultipleValueFieldBuilder
       class << self
         def build(entity, field, field_values, methods_context, full_attributes)
           return if field.ignore?
