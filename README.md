@@ -29,22 +29,10 @@ TODO: Write usage instructions here
 5. Create new Pull Request
 
 # TODO
+1. Implement search_key, delete_key configs. Add tests for that
+2. Remove duplication in error_notifier
+3. Because now we iterate through attributes, we can't set default value
+   in the field block (because if attribute is missing then field block won't be executed)
+   Find a way to set default value if attribute is missing. It's possible in before_build callback
 Discuss:
-1. rename build_chilren to nested_field, because FieldMetadata and ChildMetadata have common logic:
-    build_children :wheels do
-      builder WheelBuilder
-      reject_if do |entity, attributes|
-        attributes[:manufacturer].nil?
-      end
-    end
-
-    nested_field :wheels, builder: WheelBuilder,
-                          deletable: true,
-                          reject_if: -> {|entity, attributes} attributes[:manufacturer].nil? }
-                          type: :array_of_hashes, # add this type
-    Also, passing a block into nested_field will preprocess children attributes, then
-    before_children_build callback will be unnnecessary
-2. rename FieldMetadata to Field, ChildMetadata to (ChildField < Field)
-3. remove raquired: true, cause it's usually is validation logic and validators do it anyway
-4. iteration through attributes instead of fields_collection
-5. rename TypeCasters to Types
+1. rename FieldMetadata to Field, NestedFieldMetadata to NestedField
