@@ -44,6 +44,7 @@ describe AggregateBuilder::Buildable do
           build_rules do
           end
         end
+        TestBuilder.new.build(nil, {})
       end.to raise_error(AggregateBuilder::Errors::UndefinedRootClassError)
     end
   end
@@ -57,7 +58,7 @@ describe AggregateBuilder::Buildable do
       class AnimalBuilder
         include AggregateBuilder::Buildable
 
-        build_defaults do
+        build_rules do
           before_build :setup_defaults
         end
 
@@ -80,7 +81,7 @@ describe AggregateBuilder::Buildable do
     class BaseBuilder
       include AggregateBuilder::Buildable
 
-      build_defaults do
+      build_rules do
         before_build do |entity, attributes|
           'before build call'
         end
@@ -103,7 +104,7 @@ describe AggregateBuilder::Buildable do
 
     class DealBuilder < BaseBuilder
       build_rules_for Deal do
-        field :due_at, type: :date
+        field :due_at, type_caster: :date
       end
     end
 
@@ -129,12 +130,12 @@ describe AggregateBuilder::Buildable do
 
       build_rules_for Contact do
         fields :first_name, :last_name
-        field  :rating, type: :integer
-        field  :average_rating, type: :float
-        field  :date_of_birth, type: :date
-        field  :type_id, type: :integer
-        field  :is_private, type: :boolean
-        field  :created_at, type: :time
+        field  :rating, type_caster: :integer
+        field  :average_rating, type_caster: :float
+        field  :date_of_birth, type_caster: :date
+        field  :type_id, type_caster: :integer
+        field  :is_private, type_caster: :boolean
+        field  :created_at, type_caster: :time
         field  :company_name
       end
     end
@@ -220,13 +221,15 @@ describe AggregateBuilder::Buildable do
       build_rules do
         field :name
 
-        field :wheels, type: :array_of_hashes, field_builder: :array_of_objects, build_options: {
-          object_builder: WheelBuilder,
-          reject_if: ->(entity, attrs){ attrs[:manufacturer].nil? },
+        field :wheels, type_caster: :array_of_hashes, field_builder: :array_of_objects, build_options: {
+          builder: WheelBuilder,
+          reject_if: ->(attrs){ attrs[:manufacturer].nil? },
           deletable: true
         }
 
-        field :engine, type: :hash, field_builder: :object, build_options: { object_builder: EngineBuilder }
+        field :engine, type_caster: :hash, field_builder: :object, build_options: {
+          builder: EngineBuilder
+        }
       end
     end
 
@@ -287,6 +290,65 @@ describe AggregateBuilder::Buildable do
     end
   end
 
+  context "Using aliases" do
+    class Person
+      attr_accessor :id, :name, :work_address, :phone_numbers
+    end
+
+    class WorkAddress
+      attr_accessor :id, :city, :street
+    end
+
+    class PhoneNumber
+      attr_accessor :id, :number
+    end
+
+    class WorkAddressBuilder
+      include AggregateBuilder::Buildable
+
+      build_rules do
+        fields :city, :street
+      end
+    end
+
+    class PhoneNumberBuilder
+      include AggregateBuilder::Buildable
+
+      build_rules do
+        field :number
+      end
+    end
+
+    class PersonBuilder
+      include AggregateBuilder::Buildable
+
+      build_rules do
+        field :name
+        object :work_address, builder: WorkAddressBuilder
+        objects :phone_numbers, builder: PhoneNumberBuilder
+      end
+    end
+
+    it "should build Person" do
+      person = PersonBuilder.new.build(nil, {
+        name: "John Smith",
+        work_address: {
+          city: "Kazan",
+          street: "Pushkin St."
+        },
+        phone_numbers: [
+          { number: '12343214343' },
+          { number: '43212452343' },
+        ]
+      })
+      person.name.should == 'John Smith'
+      person.work_address.city.should == 'Kazan'
+      person.work_address.street.should == 'Pushkin St.'
+      person.phone_numbers[0].number.should == '12343214343'
+      person.phone_numbers[1].number.should == '43212452343'
+    end
+  end
+
   context "Setting custom search block" do
     class Book
       attr_accessor :name, :authors, :pages
@@ -310,7 +372,7 @@ describe AggregateBuilder::Buildable do
       build_rules Writer do
         field :first_name
         field :last_name
-        field :age, type: :integer
+        field :age, type_caster: :integer
       end
     end
 
@@ -327,14 +389,14 @@ describe AggregateBuilder::Buildable do
       include AggregateBuilder::Buildable
       build_rules Book do
         field :name
-        field :authors, type: :array_of_hashes, field_builder: :array_of_objects, build_options: {
-          object_builder: WriterBuilder,
+        field :authors, type_caster: :array_of_hashes, field_builder: :array_of_objects, build_options: {
+          builder: WriterBuilder,
           deletable: true,
           search_block: ->(author, attrs){ author.first_name == attrs[:first_name] && author.last_name == attrs[:last_name] },
         }
-        field :pages, type: :array_of_hashes, field_builder: :array_of_objects, build_options: {
+        field :pages, type_caster: :array_of_hashes, field_builder: :array_of_objects, build_options: {
           deletable: true,
-          object_builder: PageBuilder,
+          builder: PageBuilder,
           search_block: ->(page, attrs){ page.number && page.number == attrs[:number] }
         }
       end

@@ -38,8 +38,8 @@ module IntegrationalsTests
       include AggregateBuilder::Buildable
 
       build_rules Email do
-        field :email, required: true
-        field :type, type: :integer, required: true
+        field :email
+        field :type, type_caster: :integer
       end
     end
 
@@ -68,24 +68,22 @@ module IntegrationalsTests
 
       build_rules_for Contact do
         fields :first_name, :last_name
-        field  :rating, type: :integer do |entity, attributes|
-          attributes[:rating]
-        end
-        field  :average_rating, type: :float
-        field  :date_of_birth, type: :date
-        field  :type_id, type: :integer
-        field  :is_private, type: :boolean
-        field  :created_at, type: :time
+        field  :rating, type_caster: :integer
+        field  :average_rating, type_caster: :float
+        field  :date_of_birth, type_caster: :date
+        field  :type_id, type_caster: :integer
+        field  :is_private, type_caster: :boolean
+        field  :created_at, type_caster: :time
         field  :company_name
 
-        field :address, type: :hash, field_builder: :object, build_options: {
-          object_builder: AddressBuilder,
+        field :address, type_caster: :hash, field_builder: :object, build_options: {
+          builder: AddressBuilder,
           deletable: true
         }
 
-        field :emails, type: :array_of_hashes, field_builder: :array_of_objects, build_options: {
-          object_builder: EmailBuilder,
-          reject_if: ->(entity, attributes) { attributes[:reject] == true },
+        field :emails, type_caster: :array_of_hashes, field_builder: :array_of_objects, build_options: {
+          builder: EmailBuilder,
+          reject_if: ->(attributes) { attributes[:reject] == true },
           deletable: true
         }
 

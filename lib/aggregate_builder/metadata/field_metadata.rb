@@ -2,9 +2,9 @@ module AggregateBuilder
   module Metadata
     class FieldMetadata
 
-      DEFAULT_TYPE = :string
+      DEFAULT_TYPE_CASTER   = :string
       DEFAULT_FIELD_BUILDER = :single_value
-      DEFAULT_SEARCH_BLOCK = Proc.new {|entity, attrs| entity.id && entity.id == attrs[:id] }
+      DEFAULT_SEARCH_BLOCK  = Proc.new {|entity, attrs| entity.id && entity.id == attrs[:id] }
 
       attr_reader :field_name
       attr_reader :aliases
@@ -15,8 +15,8 @@ module AggregateBuilder
       def initialize(field_name, options = {})
         raise ArgumentError, "You should provide symbolized name for #{field_name}" unless field_name.is_a?(Symbol)
         @field_name       = field_name
-        @type             = extract_type(options)
         @aliases          = extract_aliases(options)
+        @type_caster      = options[:type_caster] || DEFAULT_TYPE_CASTER
         @field_builder    = options[:field_builder] || DEFAULT_FIELD_BUILDER
         @build_options    = prepare_build_options(options[:build_options])
         @if_block         = options[:if]
@@ -35,10 +35,10 @@ module AggregateBuilder
       private
 
       def type_caster
-        if @type.is_a?(Class)
-          @type
+        if @type_caster.is_a?(Class)
+          @type_caster
         else
-          TypeCasters.type_caster_by_name(@type)
+          TypeCasters.type_caster_by_name(@type_caster)
         end
       end
 
@@ -56,27 +56,12 @@ module AggregateBuilder
         build_options
       end
 
-      def extract_type(options)
-        if !!options[:type]
-          if options[:type].is_a?(Class) || options[:type].is_a?(Symbol)
-            options[:type]
-          else
-            raise ArgumentError, "You should provide class or symbol"
-          end
-        else
-          DEFAULT_TYPE
-        end
-      end
-
       def extract_aliases(options)
-        if !!options[:aliases]
-         if options[:aliases].is_a?(Array) && options[:aliases].all? {|a| a.is_a?(Symbol)}
-            options[:aliases]
-          else
-            raise ArgumentError, "You should provide array of symbols as aliases"
-          end
+        return [] unless options[:aliases]
+        if options[:aliases].is_a?(Array) && options[:aliases].all? {|a| a.is_a?(Symbol)}
+          options[:aliases]
         else
-          []
+          raise ArgumentError, "You should provide array of symbols as aliases"
         end
       end
 

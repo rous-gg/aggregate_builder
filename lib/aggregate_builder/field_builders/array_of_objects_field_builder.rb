@@ -16,7 +16,7 @@ module AggregateBuilder
       private
 
       def build_or_delete_object(field_name, hash, entity, build_options, methods_context)
-        children = entity.send(field_name)
+        children = entity.send(field_name) || []
         child = find_child(children, hash, build_options)
 
         if child && delete?(hash, build_options)
@@ -37,7 +37,7 @@ module AggregateBuilder
 
       def reject?(hash, entity, build_options, methods_context)
         if build_options[:reject_if]
-          methods_context.instance_exec(entity, hash, &build_options[:reject_if])
+          methods_context.instance_exec(hash, &build_options[:reject_if])
         else
           false
         end
@@ -57,11 +57,12 @@ module AggregateBuilder
       end
 
       def update_object(child, hash, build_options)
-        build_options[:object_builder].new.build(child, hash)
+        build_options[:builder].new.build(child, hash)
       end
 
       def build_new_object(entity, child, hash, field_name, build_options)
-        entity.send(field_name) << build_options[:object_builder].new.build(child, hash)
+        entity.send("#{field_name}=", []) unless entity.send(field_name)
+        entity.send(field_name) << build_options[:builder].new.build(child, hash)
       end
 
     end

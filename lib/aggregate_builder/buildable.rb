@@ -22,15 +22,8 @@ module AggregateBuilder
       def build_rules(root_class = nil, &block)
         raise ArgumentError, "You should provide block" unless block_given?
         rules = get_or_build_rules
-        dsl   = Metadata::DSL.new(rules)
+        dsl   = Metadata::BuildRulesDSL.new(rules)
         set_root_class(rules, root_class)
-        dsl.instance_exec(&block)
-      end
-
-      def build_defaults(&block)
-        raise ArgumentError, "You should provide block" unless block_given?
-        rules = get_or_build_rules
-        dsl   = Metadata::DSL.new(rules)
         dsl.instance_exec(&block)
       end
 
@@ -50,10 +43,10 @@ module AggregateBuilder
         if class_name =~ /Builder$/
           class_name.sub(/Builder$/, '').constantize
         else
-          raise Errors::UndefinedRootClassError, "Unable to set aggregate class from builder name"
+          nil
         end
       rescue NameError => e
-        raise Errors::UndefinedRootClassError, "Unable to set aggregate class from builder name"
+        nil
       end
 
       def get_or_build_rules
@@ -85,10 +78,6 @@ module AggregateBuilder
 
     def run_after_build_callbacks(entity, attributes)
       run_callbacks(:after, entity, attributes)
-    end
-
-    def run_before_build_children_callbacks(entity, attributes)
-      run_callbacks(:before_children, entity, attributes)
     end
 
     def run_callbacks(type, entity, attributes)

@@ -9,7 +9,7 @@ module AggregateBuilder
         if object && should_delete?(hash, build_options)
           entity.send("#{field_name}=", nil)
         else
-          entity.send( "#{field_name}=", build_options[:object_builder].new.build(object, hash))
+          entity.send( "#{field_name}=", build_options[:builder].new.build(object, hash))
         end
       end
 
