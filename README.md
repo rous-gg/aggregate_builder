@@ -29,10 +29,4 @@ TODO: Write usage instructions here
 5. Create new Pull Request
 
 # TODO
-1. Implement search_key, delete_key configs. Add tests for that
-2. Remove duplication in error_notifier
-3. Because now we iterate through attributes, we can't set default value
-   in the field block (because if attribute is missing then field block won't be executed)
-   Find a way to set default value if attribute is missing. It's possible in before_build callback
-Discuss:
-1. rename FieldMetadata to Field, NestedFieldMetadata to NestedField
+1 Discuss removing build_options key
