@@ -4,7 +4,7 @@ module AggregateBuilder
       @log_type = log_type
     end
 
-    def notify_casting_error(exception)
+    def notify_type_casting_error(exception)
       if @log_type == :log
         p exception.message
         nil

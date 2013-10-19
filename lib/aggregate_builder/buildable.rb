@@ -3,7 +3,7 @@ module AggregateBuilder
     extend ActiveSupport::Concern
 
     included do
-      class_attribute :rules, :config
+      class_attribute :rules
     end
 
     module ClassMethods
@@ -15,8 +15,8 @@ module AggregateBuilder
 
       def build_config(&block)
         raise ArgumentError, "You should provide block" unless block_given?
-        self.config ||= Metadata::BuildConfig.new
-        Metadata::BuildConfigDSL.new(self.config).instance_exec(&block)
+        self.rules ||= Metadata::BuildRules.new
+        Metadata::BuildConfigDSL.new(self.rules.config).instance_exec(&block)
       end
 
       def build_rules(root_class = nil, &block)

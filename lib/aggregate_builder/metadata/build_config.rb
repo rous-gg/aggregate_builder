@@ -6,9 +6,9 @@ module AggregateBuilder
       DEFAULT_DELETE_BLOCK = Proc.new {|attrs| attrs[:_destroy] == true }
       DEFAULT_LOG_TYPE     = :exception
 
-      attr_reader   :search_block
-      attr_reader   :delete_block
-      attr_reader   :log_type
+      attr_accessor   :search_block
+      attr_accessor   :delete_block
+      attr_accessor   :log_type
 
       def initialize
         @search_block = DEFAULT_SEARCH_BLOCK
@@ -19,6 +19,14 @@ module AggregateBuilder
       def log_type=(type)
         raise ArgumentError, "log type should be one of #{LOG_TYPES}" unless LOG_TYPES.include?(type)
         @log_type = type
+      end
+
+      def clone
+        clonned = self.class.new
+        clonned.instance_variable_set(:@search_block, @search_block.clone)
+        clonned.instance_variable_set(:@delete_block, @delete_block.clone)
+        clonned.instance_variable_set(:@log_type,     @log_type)
+        clonned
       end
 
     end

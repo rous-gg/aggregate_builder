@@ -54,16 +54,12 @@ module IntegrationalsTests
     class ContactBuilder
       include AggregateBuilder::Buildable
 
-      config_builder do
-        search_key :id do |id|
-          id.to_s.to_i
-        end
+      build_config do
+        search_block {|entity, hash| entity.id == hash[:id].to_s.to_i }
 
-        delete_key :_destroy do |value|
-          ['1', 'true', 'y', 'yes'].include?(value)
-        end
+        delete_block {|hash| ['1', 'true', 'y', 'yes'].include?(hash[:_destroy]) }
 
-        unmapped_fields_error_level :warn#, :error, :silent
+        log_type :exception
       end
 
       build_rules_for Contact do

@@ -7,5 +7,6 @@ module AggregateBuilder
     class TypeCastingError < BuildError; end
     class AssociationParamsError < BuildError; end
     class FieldNotDefinedError < BuildError; end
+    class ImmutableFieldError < BuildError; end
   end
 end

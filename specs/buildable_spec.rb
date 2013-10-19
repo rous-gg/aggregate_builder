@@ -49,34 +49,6 @@ describe AggregateBuilder::Buildable do
     end
   end
 
-  context "Building defaults" do
-    class Animal
-      attr_accessor :name, :type
-    end
-
-    it "should allows to assign defaults" do
-      class AnimalBuilder
-        include AggregateBuilder::Buildable
-
-        build_rules do
-          before_build :setup_defaults
-        end
-
-        build_rules do
-          fields :name, :type
-        end
-
-        def setup_defaults(animal, attributes)
-          attributes[:type] = :mammal
-        end
-      end
-
-      builder = AnimalBuilder.new
-      animal = builder.build(nil, name: 'Dog')
-      animal.type.should == 'mammal'
-    end
-  end
-
   context "Building objects" do
     class Contact
       attr_accessor :id, :first_name, :last_name, :type_id, :date_of_birth,
@@ -161,6 +133,7 @@ describe AggregateBuilder::Buildable do
       include AggregateBuilder::Buildable
 
       build_rules do
+        field :id, type_caster: :integer, build_options: { immutable: true }
         field :manufacturer
       end
     end
@@ -169,6 +142,7 @@ describe AggregateBuilder::Buildable do
       include AggregateBuilder::Buildable
 
       build_rules do
+        field :id, type_caster: :integer, build_options: { immutable: true }
         field :model
       end
     end
@@ -337,7 +311,7 @@ describe AggregateBuilder::Buildable do
     class PageBuilder
       include AggregateBuilder::Buildable
       build_rules Page do
-        #field :number
+        field :number, type_caster: :integer, immutable: true
         field :content
       end
     end
@@ -379,7 +353,6 @@ describe AggregateBuilder::Buildable do
         # set search keys
         book.pages[0].number = 1
         book.pages[1].number = 2
-        pp book
 
         book_builder.build(book, {
           name: 'Funny games',
@@ -389,7 +362,7 @@ describe AggregateBuilder::Buildable do
           ],
           pages: [
             { number: 1, content: 'Updated first page' },
-            { numbder: 2, content: 'Second page', _delete: true },
+            { number: 2, content: 'Second page', _delete: true },
             { content: 'Third page' },
           ]
         })

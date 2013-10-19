@@ -5,6 +5,7 @@ module AggregateBuilder
     class << self
 
       def build(field_name, field_value, entity, build_options, methods_context)
+        check_build_options!(build_options)
         array_of_hashes = field_value
         array_of_hashes.each do |hash|
           unless reject?(hash, entity, build_options, methods_context)
@@ -14,6 +15,11 @@ module AggregateBuilder
       end
 
       private
+
+      def check_build_options!(build_options)
+        build_options ||= {}
+        raise ArgumentError, "Builder should be specified in :build_options" unless build_options[:builder]
+      end
 
       def build_or_delete_object(field_name, hash, entity, build_options, methods_context)
         children = entity.send(field_name) || []

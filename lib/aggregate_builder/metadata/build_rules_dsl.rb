@@ -33,19 +33,6 @@ module AggregateBuilder
         })
       end
 
-      # Configs:
-      def search_block(&block)
-        @rules.set_search_block(&block)
-      end
-
-      def delete_block(&block)
-        @rules.set_delete_block(&block)
-      end
-
-      def log_type(type)
-        @rules.set_log_type(type)
-      end
-
       # Callbacks:
       def before_build(method_name = nil, &block)
         @rules.add_callback(:before, method_name, &block)
