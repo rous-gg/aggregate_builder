@@ -1,7 +1,7 @@
 require_relative 'spec_helper'
 
 # Big builder example text with all possible builder features
-module IntegrationalsTests
+module IntegrationalTests
   describe AggregateBuilder::Buildable do
     class Email
       module EmailTypes

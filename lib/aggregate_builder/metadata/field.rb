@@ -14,13 +14,13 @@ module AggregateBuilder
 
       def initialize(field_name, options = {})
         raise ArgumentError, "You should provide symbolized name for #{field_name}" unless field_name.is_a?(Symbol)
-        @field_name       = field_name
-        @aliases          = extract_aliases(options)
-        @type_caster      = options[:type_caster] || DEFAULT_TYPE_CASTER
-        @field_builder    = options[:field_builder] || DEFAULT_FIELD_BUILDER
-        @build_options    = prepare_build_options(options[:build_options])
-        @if_block         = options[:if]
-        @unless_block     = options[:unless]
+        @field_name     = field_name
+        @aliases        = extract_aliases(options)
+        @type_caster    = options[:type_caster] || DEFAULT_TYPE_CASTER
+        @field_builder  = options[:field_builder] || DEFAULT_FIELD_BUILDER
+        @build_options  = prepare_build_options(options[:build_options])
+        @if_block       = options[:if]
+        @unless_block   = options[:unless]
       end
 
       def keys
