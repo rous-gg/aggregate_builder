@@ -7,10 +7,10 @@ module AggregateBuilder
       elsif value.is_a?(String)
         Integer(value)
       else
-        raise Errors::TypeCastingError, "Expected to be an integer value, got '#{value}'"
+        raise Errors::TypeCastingError, "Expected to be an integer value, got #{value}"
       end
     rescue => e
-      raise Errors::TypeCastingError, "Expected to be an integer value, got '#{value}'"
+      raise Errors::TypeCastingError, "Expected to be an integer value, got #{value}"
     end
 
   end

@@ -1,39 +1,29 @@
 module AggregateBuilder
   module Metadata
-    class BuilderRules
+    class BuildRules
+      CALLBACKS = [:before, :after]
+
       attr_accessor :root_class
       attr_reader   :fields_collection
       attr_reader   :callbacks
-      attr_reader   :children_rules
-      attr_reader   :search_block
-
-      CALLBACKS = [:before, :after, :before_children]
-      DEFAULT_SEARCH_BLOCK = Proc.new {|entity, attrs| entity.id && entity.id == attrs[:id] }
 
       def initialize
-        @config_rules         = ConfigRules.new
-        @fields_collection    = FieldsCollection.new
-        @callbacks            = CallbacksCollection.new
-        @search_block         = DEFAULT_SEARCH_BLOCK
+        @fields_collection  = FieldsCollection.new
+        @callbacks          = CallbacksCollection.new
       end
 
       def clone
         clonned = self.class.new
-        clonned.instance_variable_set(:@config_rules,      @config_rules.dup)
         clonned.instance_variable_set(:@fields_collection, @fields_collection.clone)
         clonned.instance_variable_set(:@callbacks,         @callbacks.clone)
         clonned
-      end
-
-      def config
-        @config_rules
       end
 
       def add_field(field_name, options = {}, &block)
         raise ArgumentError, "You should provide symbol" unless field_name.is_a?(Symbol)
         field = @fields_collection.find(field_name)
         raise ArgumentError, "The field with name #{field_name} defined multiple times" if field
-        @fields_collection << FieldMetadata.new(field_name, options)
+        @fields_collection << Field.new(field_name, options)
       end
 
       def add_callback(callback_type, method_name = nil, &block)
@@ -44,21 +34,6 @@ module AggregateBuilder
         @callbacks.add(callback_type, method_name, &block)
       end
 
-      def set_search_block(&search_block)
-        @search_block = search_block
-      end
-
-      def silent_level?
-        config.unmapped_fields_error_level == :silent
-      end
-
-      def warn_level?
-        config.unmapped_fields_error_level == :warn
-      end
-
-      def error_level?
-        config.unmapped_fields_error_level == :error
-      end
     end
   end
 end

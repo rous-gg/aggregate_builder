@@ -9,10 +9,10 @@ module AggregateBuilder
       elsif value.is_a?(String)
         Time.new(value)
       else
-        raise Errors::TypeCastingError, "Expected to be a time value, got '#{value}'"
+        raise Errors::TypeCastingError, "Expected to be a time value, got #{value}"
       end
     rescue => e
-      raise Errors::TypeCastingError, "Expected to be a time value, got '#{value}'"
+      raise Errors::TypeCastingError, "Expected to be a time value, got #{value}"
     end
 
   end

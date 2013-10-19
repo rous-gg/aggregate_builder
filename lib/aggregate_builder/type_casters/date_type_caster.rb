@@ -11,10 +11,10 @@ module AggregateBuilder
       elsif value.is_a?(Date)
         value
       else
-        raise Errors::TypeCastingError, "Expected to be a date value, got '#{value}'"
+        raise Errors::TypeCastingError, "Expected to be a date value, got #{value}"
       end
     rescue => e
-      raise Errors::TypeCastingError, "Expected to be a date value, got '#{value}'"
+      raise Errors::TypeCastingError, "Expected to be a date value, got #{value}"
     end
 
   end

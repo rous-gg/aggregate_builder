@@ -7,7 +7,7 @@ module AggregateBuilder
       elsif value.is_a?(Symbol)
         value.to_s
       else
-        raise Errors::TypeCastingError, "Expected to be a string value, got '#{value}'"
+        raise Errors::TypeCastingError, "Expected to be a string value, got #{value}"
       end
     end
 

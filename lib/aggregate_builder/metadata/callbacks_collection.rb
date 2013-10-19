@@ -17,7 +17,7 @@ module AggregateBuilder
 
       def add(callback_type, method_name, &block)
         @callbacks[callback_type] ||= []
-        @callbacks[callback_type] << CallbackMetadata.new(method_name, &block)
+        @callbacks[callback_type] << Callback.new(method_name, &block)
       end
 
       def callbacks_by_type(callback_type)

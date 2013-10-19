@@ -77,48 +77,6 @@ describe AggregateBuilder::Buildable do
     end
   end
 
-  context "Inheritance" do
-    class BaseBuilder
-      include AggregateBuilder::Buildable
-
-      build_rules do
-        before_build do |entity, attributes|
-          'before build call'
-        end
-      end
-    end
-
-    class Company
-      attr_accessor :name
-    end
-
-    class Deal
-      attr_accessor :due_at
-    end
-
-    class CompanyBuilder < BaseBuilder
-      build_rules_for Company do
-        field :name
-      end
-    end
-
-    class DealBuilder < BaseBuilder
-      build_rules_for Deal do
-        field :due_at, type_caster: :date
-      end
-    end
-
-    it "should not have rules from other builders" do
-      rules = DealBuilder.builder_rules
-      rules.fields_collection.size.should == 1
-    end
-
-    it "should have proper rules" do
-      rules = DealBuilder.builder_rules
-      rules.fields_collection.find(:due_at).should_not be_nil
-    end
-  end
-
   context "Building objects" do
     class Contact
       attr_accessor :id, :first_name, :last_name, :type_id, :date_of_birth,

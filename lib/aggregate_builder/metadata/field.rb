@@ -1,6 +1,6 @@
 module AggregateBuilder
   module Metadata
-    class FieldMetadata
+    class Field
 
       DEFAULT_TYPE_CASTER   = :string
       DEFAULT_FIELD_BUILDER = :single_value

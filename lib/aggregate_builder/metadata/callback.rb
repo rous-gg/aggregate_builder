@@ -1,6 +1,6 @@
 module AggregateBuilder
   module Metadata
-    class CallbackMetadata
+    class Callback
       attr_reader :method_name, :callback_block
 
       def initialize(method_name, &block)

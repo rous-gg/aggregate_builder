@@ -7,10 +7,10 @@ module AggregateBuilder
       elsif value.is_a?(String)
         Float(value)
       else
-        raise Errors::TypeCastingError, "Expected to be a float value, got '#{value}'"
+        raise Errors::TypeCastingError, "Expected to be a float value, got #{value}"
       end
     rescue => e
-      raise Errors::TypeCastingError, "Expected to be a float value, got '#{value}'"
+      raise Errors::TypeCastingError, "Expected to be a float value, got #{value}"
     end
 
   end
