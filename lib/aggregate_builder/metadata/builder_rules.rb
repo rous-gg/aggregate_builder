@@ -33,14 +33,7 @@ module AggregateBuilder
         raise ArgumentError, "You should provide symbol" unless field_name.is_a?(Symbol)
         field = @fields_collection.find(field_name)
         raise ArgumentError, "The field with name #{field_name} defined multiple times" if field
-        @fields_collection << FieldMetadata.new(field_name, options, block)
-      end
-
-      def add_nested_field(field_name, options = {}, &block)
-        raise ArgumentError, "You should provide symbol" unless field_name.is_a?(Symbol)
-        field = @fields_collection.find(field_name)
-        raise ArgumentError, "The field with name #{field_name} defined multiple times" if field
-        @fields_collection << NestedFieldMetadata.new(field_name, options, block)
+        @fields_collection << FieldMetadata.new(field_name, options)
       end
 
       def add_callback(callback_type, method_name = nil, &block)

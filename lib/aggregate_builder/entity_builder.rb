@@ -10,13 +10,13 @@ module AggregateBuilder
     end
 
     def build
-      @attributes.each do |attr_name, attr_value|
-        field = @builder_rules.fields_collection.find(attr_name)
+      @attributes.each do |field_name, field_value|
+        field = @builder_rules.fields_collection.find(field_name)
         unless field
-          @errors_notifier.notify_undefined_field_given(attr_name)
+          @errors_notifier.notify_undefined_field_given(field_name)
           next
         end
-        field.build(@entity, attr_value, @methods_context, @attributes, @builder_rules)
+        field.build(field_value, @entity, @methods_context)
       end
 
     end

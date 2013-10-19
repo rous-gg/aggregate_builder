@@ -129,17 +129,13 @@ describe AggregateBuilder::Buildable do
 
       build_rules_for Contact do
         fields :first_name, :last_name
-        field  :rating, type: :integer do |entity, attributes|
-          attributes[:rating]
-        end
+        field  :rating, type: :integer
         field  :average_rating, type: :float
         field  :date_of_birth, type: :date
         field  :type_id, type: :integer
         field  :is_private, type: :boolean
         field  :created_at, type: :time
-        field  :company_name do |entity, attrs|
-          attrs[:company_name] = 'John Doe Inc.'
-        end
+        field  :company_name
       end
     end
 
@@ -153,6 +149,7 @@ describe AggregateBuilder::Buildable do
         type_id: 3,
         is_private: true,
         created_at: "2013-09-30 08:58:28 +0400",
+        company_name: "John Doe Inc."
       })
 
       contact.first_name.should == 'John'
@@ -205,7 +202,6 @@ describe AggregateBuilder::Buildable do
       include AggregateBuilder::Buildable
 
       build_rules do
-        field :id, ignore: true
         field :manufacturer
       end
     end
@@ -214,7 +210,6 @@ describe AggregateBuilder::Buildable do
       include AggregateBuilder::Buildable
 
       build_rules do
-        field :id, ignore: true
         field :model
       end
     end
@@ -223,15 +218,15 @@ describe AggregateBuilder::Buildable do
       include AggregateBuilder::Buildable
 
       build_rules do
-        field :id, ignore: true
         field :name
 
-        nested_field :wheels,
-          builder: WheelBuilder,
+        field :wheels, type: :array_of_hashes, field_builder: :array_of_objects, build_options: {
+          object_builder: WheelBuilder,
           reject_if: ->(entity, attrs){ attrs[:manufacturer].nil? },
           deletable: true
+        }
 
-        nested_field :engine, type: :hash, builder: EngineBuilder
+        field :engine, type: :hash, field_builder: :object, build_options: { object_builder: EngineBuilder }
       end
     end
 
@@ -322,7 +317,7 @@ describe AggregateBuilder::Buildable do
     class PageBuilder
       include AggregateBuilder::Buildable
       build_rules Page do
-        field :number, ignore: true
+        #field :number
         field :content
       end
     end
@@ -332,10 +327,16 @@ describe AggregateBuilder::Buildable do
       include AggregateBuilder::Buildable
       build_rules Book do
         field :name
-        nested_field :authors, deletable: true, builder: WriterBuilder,
-                               search_block: ->(author, attrs){ author.first_name == attrs[:first_name] && author.last_name == attrs[:last_name] }
-        nested_field :pages, deletable: true, builder: PageBuilder,
-                               search_block: ->(page, attrs){ page.number && page.number == attrs[:number] }
+        field :authors, type: :array_of_hashes, field_builder: :array_of_objects, build_options: {
+          object_builder: WriterBuilder,
+          deletable: true,
+          search_block: ->(author, attrs){ author.first_name == attrs[:first_name] && author.last_name == attrs[:last_name] },
+        }
+        field :pages, type: :array_of_hashes, field_builder: :array_of_objects, build_options: {
+          deletable: true,
+          object_builder: PageBuilder,
+          search_block: ->(page, attrs){ page.number && page.number == attrs[:number] }
+        }
       end
     end
 

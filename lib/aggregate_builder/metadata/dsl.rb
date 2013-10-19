@@ -5,6 +5,11 @@ module AggregateBuilder
         @rules = rules
       end
 
+      # Fields:
+      def field(field_name, options = {})
+        @rules.add_field(field_name, options)
+      end
+
       def fields(*args)
         options = extract_options(args)
         args.each do |arg|
@@ -12,24 +17,14 @@ module AggregateBuilder
         end
       end
 
-      def field(field_name, field_options = {}, &block)
-        @rules.add_field(field_name, field_options, &block)
-      end
-
-      def nested_field(field_name, field_options = {}, &block)
-        @rules.add_nested_field(field_name, field_options, &block)
-      end
-
+      # Configs:
       def search_block(&block)
         @rules.set_search_block(&block)
       end
 
+      # Callbacks:
       def before_build(method_name = nil, &block)
         @rules.add_callback(:before, method_name, &block)
-      end
-
-      def before_build_children(method_name = nil, &block)
-        @rules.add_callback(:before_children, method_name, &block)
       end
 
       def after_build(method_name = nil, &block)

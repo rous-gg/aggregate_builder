@@ -24,7 +24,7 @@ module IntegrationalsTests
       attr_accessor :first_name, :last_name, :type_id, :date_of_birth, :is_private,
         :rating, :average_rating, :created_at, :company_name, :id
 
-      attr_accessor :before_build_value, :after_build_value, :before_build_children_value
+      attr_accessor :before_build_value, :after_build_value
 
       attr_accessor :emails, :address
 
@@ -76,23 +76,18 @@ module IntegrationalsTests
         field  :type_id, type: :integer
         field  :is_private, type: :boolean
         field  :created_at, type: :time
-        field  :company_name do |entity, attributes|
-          default_company_name
-        end
+        field  :company_name
 
-        before_build_children do |entity, attributes|
-          entity.before_build_children_value = "BEFORE BUILD CHILDREN"
-        end
-
-        nested_field :address,
-          type: :hash,
-          builder: AddressBuilder,
+        field :address, type: :hash, field_builder: :object, build_options: {
+          object_builder: AddressBuilder,
           deletable: true
+        }
 
-        nested_field :emails,
-          builder: EmailBuilder,
+        field :emails, type: :array_of_hashes, field_builder: :array_of_objects, build_options: {
+          object_builder: EmailBuilder,
           reject_if: ->(entity, attributes) { attributes[:reject] == true },
           deletable: true
+        }
 
         before_build :before_build_callback
 
@@ -102,10 +97,6 @@ module IntegrationalsTests
       end
 
       private
-
-      def default_company_name
-        'John Doe Inc.'
-      end
 
       def before_build_callback(entity, attributes)
         entity.before_build_value = 'BEFORE'
@@ -126,6 +117,7 @@ module IntegrationalsTests
         type_id: 3,
         is_private: true,
         created_at: "2013-09-30 08:58:28 +0400",
+        company_name: 'John Doe Inc.',
         emails: [
           {email: 'test@example.com', type: 0},
           {email: 'user@example.com', type: 1}
