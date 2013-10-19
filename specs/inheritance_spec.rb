@@ -2,11 +2,11 @@ require_relative 'spec_helper'
 
 describe "Builders inheritance" do
   class Company
-    attr_accessor :id, :name, :users
+    attr_accessor :id, :name, :users, :created_by_id
   end
 
   class User
-    attr_accessor :id, :name, :position
+    attr_accessor :id, :name, :position, :created_by_id
   end
 
   class Deal
@@ -23,17 +23,19 @@ describe "Builders inheritance" do
     end
 
     build_rules do
+      field :id, type_caster: :integer, build_options: { immutable: true }
+
       before_build do |entity, attributes|
-        'before build call'
+        attributes[:created_by_id] = 10
       end
     end
   end
 
-  class UserBuilder
+  class UserBuilder < BaseBuilder
     include AggregateBuilder::Buildable
     build_rules do
-      field :id, type_caster: :integer, build_options: { immutable: true }
       fields :name, :position
+      field :created_by_id, type_caster: :integer
     end
   end
 
@@ -41,6 +43,7 @@ describe "Builders inheritance" do
     include AggregateBuilder::Buildable
     build_rules_for Company do
       field :name
+      field :created_by_id, type_caster: :integer
       objects :users, builder: UserBuilder
     end
   end
@@ -51,6 +54,17 @@ describe "Builders inheritance" do
       field :name
       objects :users, builder: UserBuilder
     end
+  end
+
+  it "inherited callbacks should be called" do
+    company = CompanyBuilder.new.build(nil, {
+      name: 'John LLC',
+      users: [
+        { name: 'John Smith', position: 'Developer' }
+      ]
+    })
+    company.created_by_id.should == 10
+    company.users[0].created_by_id.should == 10
   end
 
   it "CompanyBuilder should use search_block defined in parent" do

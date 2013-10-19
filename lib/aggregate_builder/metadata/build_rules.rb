@@ -25,7 +25,9 @@ module AggregateBuilder
       def add_field(field_name, options = {}, &block)
         raise ArgumentError, "You should provide symbol" unless field_name.is_a?(Symbol)
         field = @fields_collection.find(field_name)
-        raise ArgumentError, "The field with name #{field_name} defined multiple times" if field
+        if field
+          @fields_collection.delete(field_name)
+        end
         options[:build_options] ||= {}
         options[:build_options][:search_block] ||= @config.search_block
         options[:build_options][:delete_block] ||= @config.delete_block
