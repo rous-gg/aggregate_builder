@@ -1,6 +1,5 @@
 module AggregateBuilder
   class FieldBuilders::ObjectFieldBuilder
-    DEFAULT_DELETE_KEY = :_delete
     class << self
 
       def build(field_name, field_value, entity, build_options, methods_context)
@@ -17,8 +16,7 @@ module AggregateBuilder
 
       def should_delete?(hash, build_options)
         if build_options[:deletable]
-          delete_key = DEFAULT_DELETE_KEY # TODO: make it configurable
-          hash[delete_key] || hash[delete_key.to_s]
+          build_options[:delete_block].call(hash)
         end
       end
 

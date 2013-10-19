@@ -38,6 +38,8 @@ module IntegrationalTests
       include AggregateBuilder::Buildable
 
       build_rules Email do
+        field :_destroy, type_caster: :boolean, build_options: { ignore: true }
+        field :id, type_caster: :integer, build_options: { immutable: true }
         field :email
         field :type, type_caster: :integer
       end
@@ -47,6 +49,8 @@ module IntegrationalTests
       include AggregateBuilder::Buildable
 
       build_rules Address do
+        field :_destroy, type_caster: :boolean, build_options: { ignore: true }
+        field :id, type_caster: :integer, build_options: { immutable: true }
         fields :street, :city, :postal_code, :state
       end
     end
@@ -57,7 +61,7 @@ module IntegrationalTests
       build_config do
         search_block {|entity, hash| entity.id == hash[:id].to_s.to_i }
 
-        delete_block {|hash| ['1', 'true', 'y', 'yes'].include?(hash[:_destroy]) }
+        delete_block {|hash| ['1', 'true', 'y', 'yes', true].include?(hash[:_destroy]) }
 
         log_type :exception
       end
@@ -167,7 +171,7 @@ module IntegrationalTests
         attributes = {
           emails: [
             {email: 'test@example.com', type: 0},
-            {id: 1, email: 'user@example.com', type: 1, _delete: true},
+            {id: 1, email: 'user@example.com', type: 1, _destroy: true},
             {reject: true, email: 'user@example.com', type: 1}
           ]
         }

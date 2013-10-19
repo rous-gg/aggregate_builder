@@ -15,8 +15,8 @@ module AggregateBuilder
       end
     end
 
-    def notify_undefined_field_given(field_name)
-      message = "Unexpected field with name '#{field_name}'"
+    def notify_undefined_field_given(field_name, context_class)
+      message = "Unexpected field with name '#{field_name}' in #{context_class}"
       if @log_type == :log
         p "WARNING: #{message}"
       elsif @log_type == :exception

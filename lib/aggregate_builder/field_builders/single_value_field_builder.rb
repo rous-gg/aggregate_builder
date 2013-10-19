@@ -6,8 +6,11 @@ module AggregateBuilder
         if entity.send(field_name) != field_value
           raise Errors::ImmutableFieldError, "Field '#{field_name}' can not be changed"
         end
+      else
+        if !build_options[:ignore]
+          entity.send("#{field_name}=", field_value)
+        end
       end
-      entity.send("#{field_name}=", field_value)
     end
 
   end

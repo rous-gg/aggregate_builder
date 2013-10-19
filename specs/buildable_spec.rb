@@ -135,6 +135,7 @@ describe AggregateBuilder::Buildable do
       build_rules do
         field :id, type_caster: :integer, build_options: { immutable: true }
         field :manufacturer
+        field :_destroy, type_caster: :boolean, build_options: { ignore: true }
       end
     end
 
@@ -206,7 +207,7 @@ describe AggregateBuilder::Buildable do
         name: 'Kawasaki',
         wheels: [
           { manufacturer: 'Peroni', id: 1 },
-          { manufacturer: 'Kama', id: 2, _delete: true },
+          { manufacturer: 'Kama', id: 2, _destroy: true },
           { manufacturer: 'Yetti' },
         ],
         engine: {
@@ -305,6 +306,7 @@ describe AggregateBuilder::Buildable do
         field :first_name
         field :last_name
         field :age, type_caster: :integer
+        field :_destroy, type_caster: :boolean, build_options: { ignore: true }
       end
     end
 
@@ -313,6 +315,7 @@ describe AggregateBuilder::Buildable do
       build_rules Page do
         field :number, type_caster: :integer, immutable: true
         field :content
+        field :_destroy, type_caster: :boolean, build_options: { ignore: true }
       end
     end
 
@@ -362,7 +365,7 @@ describe AggregateBuilder::Buildable do
           ],
           pages: [
             { number: 1, content: 'Updated first page' },
-            { number: 2, content: 'Second page', _delete: true },
+            { number: 2, content: 'Second page', _destroy: true },
             { content: 'Third page' },
           ]
         })

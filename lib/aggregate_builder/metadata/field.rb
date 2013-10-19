@@ -4,7 +4,6 @@ module AggregateBuilder
 
       DEFAULT_TYPE_CASTER   = :string
       DEFAULT_FIELD_BUILDER = :single_value
-      DEFAULT_SEARCH_BLOCK  = Proc.new {|entity, attrs| entity.id && entity.id == attrs[:id] }
 
       attr_reader :field_name
       attr_reader :aliases
@@ -18,9 +17,7 @@ module AggregateBuilder
         @aliases        = extract_aliases(options)
         @type_caster    = options[:type_caster] || DEFAULT_TYPE_CASTER
         @field_builder  = options[:field_builder] || DEFAULT_FIELD_BUILDER
-        @build_options  = prepare_build_options(options[:build_options])
-        @if_block       = options[:if]
-        @unless_block   = options[:unless]
+        @build_options  = options[:build_options] || {}
       end
 
       def keys
@@ -48,12 +45,6 @@ module AggregateBuilder
         else
           FieldBuilders.field_builder_by_name(@field_builder)
         end
-      end
-
-      def prepare_build_options(build_options)
-        build_options ||= {}
-        build_options[:search_block] ||= DEFAULT_SEARCH_BLOCK
-        build_options
       end
 
       def extract_aliases(options)

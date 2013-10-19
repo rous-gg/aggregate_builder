@@ -13,7 +13,7 @@ module AggregateBuilder
       @attributes.each do |field_name, field_value|
         field = @builder_rules.fields_collection.find(field_name)
         unless field
-          @errors_notifier.notify_undefined_field_given(field_name)
+          @errors_notifier.notify_undefined_field_given(field_name, @methods_context.class)
           next
         end
         try_build(field, field_value)
