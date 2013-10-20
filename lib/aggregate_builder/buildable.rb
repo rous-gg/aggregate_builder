@@ -18,16 +18,16 @@ module AggregateBuilder
 
       def build_config(&block)
         raise ArgumentError, "You should provide block" unless block_given?
-        self.builder_config ||= Metadata::BuildConfig.new
-        Metadata::BuildConfigDSL.new(self.builder_config).instance_exec(&block)
+        self.builder_config ||= Metadata::BuildConfig.new(&block)
+        self.builder_config.configure(&block)
       end
 
       def build_rules(root_class = nil, &block)
         raise ArgumentError, "You should provide block" unless block_given?
-        self.builder_rules ||= Metadata::BuildRules.new
         self.builder_config ||= Metadata::BuildConfig.new
+        self.builder_rules ||= Metadata::BuildRules.new
+        self.builder_rules.configure(&block)
         self.builder_rules.root_class = root_class ? root_class : root_class_from_builder_name
-        Metadata::BuildRulesDSL.new(self.builder_rules).instance_exec(&block)
       end
 
       def build_rules_for(root_class, &block)

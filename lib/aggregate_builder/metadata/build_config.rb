@@ -23,6 +23,10 @@ module AggregateBuilder
         @delete_key_processing   = DEFAULT_DELETE_KEY_PROCESSING
       end
 
+      def configure(&config_block)
+        Metadata::DSL::BuildConfigDSL.new(self).instance_exec(&config_block)
+      end
+
       def log_type=(type)
         raise ArgumentError, "log_type should be one of #{LOG_TYPES}" unless LOG_TYPES.include?(type)
         @log_type = type

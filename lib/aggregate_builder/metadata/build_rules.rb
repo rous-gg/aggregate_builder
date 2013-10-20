@@ -12,6 +12,10 @@ module AggregateBuilder
         @callbacks          = CallbacksCollection.new
       end
 
+      def configure(&rules_block)
+        Metadata::DSL::BuildRulesDSL.new(self).instance_exec(&rules_block)
+      end
+
       def clone
         clonned = self.class.new
         clonned.instance_variable_set(:@fields_collection, @fields_collection.clone)

@@ -35,9 +35,9 @@ require 'aggregate_builder/metadata/fields_collection'
 require 'aggregate_builder/metadata/callback'
 require 'aggregate_builder/metadata/callbacks_collection'
 require 'aggregate_builder/metadata/build_rules'
-require 'aggregate_builder/metadata/build_rules_dsl'
 require 'aggregate_builder/metadata/build_config'
-require 'aggregate_builder/metadata/build_config_dsl'
+require 'aggregate_builder/metadata/dsl/build_rules_dsl'
+require 'aggregate_builder/metadata/dsl/build_config_dsl'
 
 module AggregateBuilder
 end
