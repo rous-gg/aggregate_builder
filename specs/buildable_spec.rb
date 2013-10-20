@@ -237,7 +237,8 @@ describe AggregateBuilder::Buildable do
       include AggregateBuilder::Buildable
 
       build_rules do
-        fields :city, :street
+        fields :city, aliases: [:work_city]
+        fields :street, aliases: [:work_street]
       end
     end
 
@@ -245,7 +246,7 @@ describe AggregateBuilder::Buildable do
       include AggregateBuilder::Buildable
 
       build_rules do
-        field :number
+        field :number, aliases: [:phone]
       end
     end
 
@@ -264,10 +265,10 @@ describe AggregateBuilder::Buildable do
         name: "John Smith",
         work_address: {
           city: "Kazan",
-          street: "Pushkin St."
+          work_street: "Pushkin St."
         },
         phone_numbers: [
-          { number: '12343214343' },
+          { phone: '12343214343' },
           { number: '43212452343' },
         ]
       })
@@ -279,7 +280,7 @@ describe AggregateBuilder::Buildable do
     end
   end
 
-  context "Setting custom search block" do
+  context "Setting custom primary key" do
     class Book
       attr_accessor :name, :authors, :pages
 
@@ -333,39 +334,36 @@ describe AggregateBuilder::Buildable do
       end
     end
 
+    it "should update books finding them by custom primary key" do
+      book_builder = BookBuilder.new
+      book = book_builder.build({
+        name: 'Funny games',
+        authors: [
+          { first_name: 'Bill', last_name: 'Smith', age: 30 },
+          { first_name: 'John', last_name: 'Snow', age: 23 },
+        ],
+        pages: [
+          { content: 'First page' },
+          { content: 'Second page' },
+        ]
+      })
 
-    describe "build with custom id field" do
-      it "should update find and update books by custom id field" do
-        book_builder = BookBuilder.new
-        book = book_builder.build({
-          name: 'Funny games',
-          authors: [
-            { first_name: 'Bill', last_name: 'Smith', age: 30 },
-            { first_name: 'John', last_name: 'Snow', age: 23 },
-          ],
-          pages: [
-            { content: 'First page' },
-            { content: 'Second page' },
-          ]
-        })
+      # set search keys
+      book.pages[0].number = 1
+      book.pages[1].number = 2
 
-        # set search keys
-        book.pages[0].number = 1
-        book.pages[1].number = 2
-
-        book_builder.update(book, {
-          name: 'Funny games',
-          authors: [
-            { first_name: 'Bill', last_name: 'Smith', age: 32 },
-            { first_name: 'John', last_name: 'Snow', age: 25 },
-          ],
-          pages: [
-            { number: 1, content: 'Updated first page' },
-            { number: 2, content: 'Second page', _destroy: true },
-            { content: 'Third page' },
-          ]
-        })
-      end
+      book_builder.update(book, {
+        name: 'Funny games',
+        authors: [
+          { first_name: 'Bill', last_name: 'Smith', age: 32 },
+          { first_name: 'John', last_name: 'Snow', age: 25 },
+        ],
+        pages: [
+          { number: 1, content: 'Updated first page' },
+          { number: 2, content: 'Second page', _destroy: true },
+          { content: 'Third page' },
+        ]
+      })
     end
   end
 end
