@@ -45,29 +45,40 @@ module AggregateBuilder
       end
     end
 
-    def build(entity_or_nil, attributes, &block)
+    def build(attributes)
       raise ArgumentError, "Attributes should be a hash" unless attributes.is_a?(Hash)
       raise Errors::UndefinedRootClassError, "Aggregate root class is not defined" if !rules.root_class
 
-      attributes = attributes.dup
-      (entity_or_nil || self.rules.root_class.new).tap do |entity|
-        run_before_build_callbacks(entity, attributes)
-        build_entity(entity, attributes)
-        run_after_build_callbacks(entity, attributes)
+      entity = self.rules.root_class.new
+      run_callbacks(entity, attributes) do
+        EntityBuilder.new(rules, self).build(entity, attributes)
+      end
+    end
+
+    def update(entity, attributes)
+      raise ArgumentError, "Attributes should be a hash" unless attributes.is_a?(Hash)
+      run_callbacks(entity, attributes) do
+        EntityBuilder.new(rules, self).update(entity, attributes)
+      end
+    end
+
+    def patch(entity, attributes)
+      raise ArgumentError, "Attributes should be a hash" unless attributes.is_a?(Hash)
+      run_callbacks(entity, attributes) do
+        EntityBuilder.new(rules, self).patch(entity, attributes)
       end
     end
 
     private
 
-    def run_before_build_callbacks(entity, attributes)
-      run_callbacks(:before, entity, attributes)
+    def run_callbacks(entity, attributes, &block)
+      run_callback(:before, entity, attributes)
+      entity = block.call
+      run_callback(:after, entity, attributes)
+      entity
     end
 
-    def run_after_build_callbacks(entity, attributes)
-      run_callbacks(:after, entity, attributes)
-    end
-
-    def run_callbacks(type, entity, attributes)
+    def run_callback(type, entity, attributes)
       rules.callbacks.callbacks_by_type(type).each do |callback|
         if callback.method_name
           send(callback.method_name, entity, attributes)
@@ -75,10 +86,6 @@ module AggregateBuilder
           instance_exec entity, attributes, &callback.callback_block
         end
       end
-    end
-
-    def build_entity(entity, attributes)
-      EntityBuilder.new(rules, attributes, entity, self).build
     end
 
   end

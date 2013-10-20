@@ -28,7 +28,7 @@ module AggregateBuilder
         elsif child
           update_object(child, hash, build_options)
         else
-          build_new_object(entity, child, hash, field_name, build_options)
+          build_new_object(entity, hash, field_name, build_options)
         end
       end
 
@@ -60,12 +60,12 @@ module AggregateBuilder
       end
 
       def update_object(child, hash, build_options)
-        build_options[:builder].new.build(child, hash)
+        build_options[:builder].new.update(child, hash)
       end
 
-      def build_new_object(entity, child, hash, field_name, build_options)
+      def build_new_object(entity, hash, field_name, build_options)
         entity.send("#{field_name}=", []) unless entity.send(field_name)
-        entity.send(field_name) << build_options[:builder].new.build(child, hash)
+        entity.send(field_name) << build_options[:builder].new.build(hash)
       end
 
     end

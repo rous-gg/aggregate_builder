@@ -16,7 +16,7 @@ describe AggregateBuilder::Buildable do
       end
 
       builder = TestCarBuilder.new
-      builder.build(nil, {
+      builder.build({
         name: 'Porshe', model: 'Cayene'
       }).should be_instance_of(Car)
     end
@@ -31,7 +31,7 @@ describe AggregateBuilder::Buildable do
       end
 
       builder = CarBuilder.new
-      builder.build(nil, {
+      builder.build({
         name: 'Porshe', model: 'Cayene'
       }).should be_instance_of(Car)
     end
@@ -44,7 +44,7 @@ describe AggregateBuilder::Buildable do
           build_rules do
           end
         end
-        TestBuilder.new.build(nil, {})
+        TestBuilder.new.build({})
       end.to raise_error(AggregateBuilder::Errors::UndefinedRootClassError)
     end
   end
@@ -71,7 +71,7 @@ describe AggregateBuilder::Buildable do
     end
 
     it "should properly set object fields" do
-      contact = ContactBuilder.new.build(nil, {
+      contact = ContactBuilder.new.build({
         first_name: 'John',
         last_name: 'Doe',
         rating: 10,
@@ -96,7 +96,7 @@ describe AggregateBuilder::Buildable do
 
     it "should update existing built object" do
       builder = ContactBuilder.new
-      contact = builder.build(nil, {
+      contact = builder.build({
         first_name: 'John',
         last_name: 'Doe',
         rating: 10,
@@ -106,7 +106,7 @@ describe AggregateBuilder::Buildable do
         is_private: true,
         created_at: "2013-09-30 08:58:28 +0400",
       })
-      updated_contact = builder.build(contact, first_name: 'Bill', rating: 20)
+      updated_contact = builder.update(contact, first_name: 'Bill', rating: 20)
       updated_contact.first_name.should == 'Bill'
       updated_contact.rating.should == 20
     end
@@ -167,7 +167,7 @@ describe AggregateBuilder::Buildable do
     end
 
     it "should build children objects" do
-      motocycle = MotocycleBuilder.new.build(nil, {
+      motocycle = MotocycleBuilder.new.build({
         name: 'Suzuki',
         wheels: [
           { manufacturer: 'Nokian' },
@@ -185,7 +185,7 @@ describe AggregateBuilder::Buildable do
 
     it "should update existing child objects" do
       builder = MotocycleBuilder.new
-      motocycle = builder.build(nil, {
+      motocycle = builder.build({
         name: 'Suzuki',
         wheels: [
           { manufacturer: 'Nokian' },
@@ -203,7 +203,7 @@ describe AggregateBuilder::Buildable do
       motocycle.wheels[1].id = 2
       motocycle.engine.id = 1
 
-      updated_motocycle = builder.build(motocycle, {
+      updated_motocycle = builder.update(motocycle, {
         name: 'Kawasaki',
         wheels: [
           { manufacturer: 'Peroni', id: 1 },
@@ -263,7 +263,7 @@ describe AggregateBuilder::Buildable do
     end
 
     it "should build Person" do
-      person = PersonBuilder.new.build(nil, {
+      person = PersonBuilder.new.build({
         name: "John Smith",
         work_address: {
           city: "Kazan",
@@ -341,7 +341,7 @@ describe AggregateBuilder::Buildable do
     describe "build with custom id field" do
       it "should update find and update books by custom id field" do
         book_builder = BookBuilder.new
-        book = book_builder.build(nil, {
+        book = book_builder.build({
           name: 'Funny games',
           authors: [
             { first_name: 'Bill', last_name: 'Smith', age: 30 },
@@ -357,7 +357,7 @@ describe AggregateBuilder::Buildable do
         book.pages[0].number = 1
         book.pages[1].number = 2
 
-        book_builder.build(book, {
+        book_builder.update(book, {
           name: 'Funny games',
           authors: [
             { first_name: 'Bill', last_name: 'Smith', age: 32 },

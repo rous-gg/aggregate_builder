@@ -57,7 +57,7 @@ describe "Builders inheritance" do
   end
 
   it "inherited callbacks should be called" do
-    company = CompanyBuilder.new.build(nil, {
+    company = CompanyBuilder.new.build({
       name: 'John LLC',
       users: [
         { name: 'John Smith', position: 'Developer' }
@@ -68,14 +68,14 @@ describe "Builders inheritance" do
   end
 
   it "CompanyBuilder should use search_block defined in parent" do
-    company = CompanyBuilder.new.build(nil, {
+    company = CompanyBuilder.new.build({
       name: 'John LLC',
       users: [
         { name: 'John Smith', position: 'Developer' },
         { name: 'Bill Smith', position: 'Developer' }
       ]
     })
-    company = CompanyBuilder.new.build(company, {
+    company = CompanyBuilder.new.update(company, {
       name: 'John LLC',
       users: [
         { name: 'John Smith', position: 'Manager' },
@@ -88,7 +88,7 @@ describe "Builders inheritance" do
   end
 
   it "DealBuilder should use default search block" do
-    deal = DealBuilder.new.build(nil, {
+    deal = DealBuilder.new.build({
       name: 'By a car',
       users: [
         { name: 'John Smith', position: 'Developer' },
@@ -97,7 +97,7 @@ describe "Builders inheritance" do
     })
     deal.users[0].id = 1
     deal.users[1].id = 2
-    deal = DealBuilder.new.build(deal, {
+    deal = DealBuilder.new.update(deal, {
       name: 'By a car',
       users: [
         { id: 1, name: 'John Smith', position: 'Manager' },

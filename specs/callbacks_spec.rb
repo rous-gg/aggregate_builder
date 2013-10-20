@@ -30,13 +30,13 @@ describe "Builder callbacks" do
 
   it "before_build callback should be called" do
     builder = AnimalBuilder.new
-    animal = builder.build(nil, {})
+    animal = builder.build({})
     animal.type.should == 'mammal'
   end
 
   it "after_build callback should be called" do
     builder = AnimalBuilder.new
-    animal = builder.build(nil, {})
+    animal = builder.build({})
     animal.name.should == 'Dog'
   end
 

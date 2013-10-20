@@ -29,5 +29,8 @@ TODO: Write usage instructions here
 5. Create new Pull Request
 
 # TODO
-1. Discuss removing build_options key
-2. Add update, patch methods
+1. Rename entity to object anywhere
+1. Add update, patch methods
+2. Discuss removing build_options key
+3. Think about search_key, delete_key
+4. Add test when deletable is false

@@ -129,7 +129,7 @@ module IntegrationalTests
       }
 
       builder = ContactBuilder.new
-      builder.build(nil, attributes)
+      builder.build(attributes)
     end
 
     its(:first_name)                   { should == 'John' }
@@ -156,7 +156,7 @@ module IntegrationalTests
         }
 
         builder = ContactBuilder.new
-        contact = builder.build(nil, attributes)
+        contact = builder.build(attributes)
         contact.address
       end
 
@@ -184,7 +184,7 @@ module IntegrationalTests
         email.id = 2
         contact.emails << email
         builder = ContactBuilder.new
-        contact = builder.build(contact, attributes)
+        contact = builder.update(contact, attributes)
       end
 
       it "should remove existing child" do
