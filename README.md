@@ -30,7 +30,7 @@ TODO: Write usage instructions here
 
 # TODO
 1. Rename entity to object anywhere
-1. Add update, patch methods
+1. Discuss update, patch methods http://tools.ietf.org/html/rfc6902
 2. Discuss removing build_options key
-3. Think about search_key, delete_key
+3. Think about search_key, delete_key, removing keys from hash makes inherited_spec fail
 4. Add test when deletable is false
