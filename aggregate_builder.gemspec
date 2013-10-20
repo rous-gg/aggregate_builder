@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = AggregateBuilder::VERSION
   spec.authors       = ["Ruslan Gatiyatov", "Albert Gazizov", "Droid Labs LLC"]
   spec.email         = ["ruslan.gatiyatov@gmail.com", "deeper4k@gmail.com"]
-  spec.description   = %q{Aggregate builder provides common DSL for building aggregates}
-  spec.summary       = %q{Common aggregates building library}
+  spec.description   = %q{Aggregate builder provides common DSL for building objects}
+  spec.summary       = %q{Common objects building library}
   spec.homepage      = "http://droidlabs.pro"
   spec.license       = "MIT"
 
