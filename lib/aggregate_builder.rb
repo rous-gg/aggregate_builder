@@ -21,7 +21,7 @@ require 'aggregate_builder/type_casters/hash_type_caster'
 
 # Field builders
 require 'aggregate_builder/field_builders'
-require 'aggregate_builder/field_builders/single_value_field_builder'
+require 'aggregate_builder/field_builders/primitive_field_builder'
 require 'aggregate_builder/field_builders/array_of_objects_field_builder'
 require 'aggregate_builder/field_builders/object_field_builder'
 

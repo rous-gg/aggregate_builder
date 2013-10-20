@@ -3,7 +3,7 @@ module AggregateBuilder
     class Field
 
       DEFAULT_TYPE_CASTER   = :string
-      DEFAULT_FIELD_BUILDER = :single_value
+      DEFAULT_FIELD_BUILDER = :primitive
 
       attr_reader :field_name
       attr_reader :aliases
