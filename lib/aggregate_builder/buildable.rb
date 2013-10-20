@@ -49,41 +49,41 @@ module AggregateBuilder
       raise ArgumentError, "Attributes should be a hash" unless attributes.is_a?(Hash)
       raise Errors::UndefinedRootClassError, "Aggregate root class is not defined" if !rules.root_class
 
-      entity = self.rules.root_class.new
-      run_callbacks(entity, attributes) do
-        EntityBuilder.new(rules, self).build(entity, attributes)
+      object = self.rules.root_class.new
+      run_callbacks(object, attributes) do
+        ObjectBuilder.new(rules, self).build(object, attributes)
       end
     end
 
-    def update(entity, attributes)
+    def update(object, attributes)
       raise ArgumentError, "Attributes should be a hash" unless attributes.is_a?(Hash)
-      run_callbacks(entity, attributes) do
-        EntityBuilder.new(rules, self).update(entity, attributes)
+      run_callbacks(object, attributes) do
+        ObjectBuilder.new(rules, self).update(object, attributes)
       end
     end
 
-    def patch(entity, attributes)
+    def patch(object, attributes)
       raise ArgumentError, "Attributes should be a hash" unless attributes.is_a?(Hash)
-      run_callbacks(entity, attributes) do
-        EntityBuilder.new(rules, self).patch(entity, attributes)
+      run_callbacks(object, attributes) do
+        ObjectBuilder.new(rules, self).patch(object, attributes)
       end
     end
 
     private
 
-    def run_callbacks(entity, attributes, &block)
-      run_callback(:before, entity, attributes)
-      entity = block.call
-      run_callback(:after, entity, attributes)
-      entity
+    def run_callbacks(object, attributes, &block)
+      run_callback(:before, object, attributes)
+      object = block.call
+      run_callback(:after, object, attributes)
+      object
     end
 
-    def run_callback(type, entity, attributes)
+    def run_callback(type, object, attributes)
       rules.callbacks.callbacks_by_type(type).each do |callback|
         if callback.method_name
-          send(callback.method_name, entity, attributes)
+          send(callback.method_name, object, attributes)
         else
-          instance_exec entity, attributes, &callback.callback_block
+          instance_exec(object, attributes, &callback.callback_block)
         end
       end
     end

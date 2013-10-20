@@ -1,7 +1,7 @@
 module AggregateBuilder
   module Metadata
     class BuildConfig
-      LOG_TYPES                       = [:exception, :log, :ignore]
+      LOG_TYPES                       = [:exception, :logging, :ignoring]
       DEFAULT_LOG_TYPE                = :exception
 
       DEFAULT_PRIMARY_KEY             = :id
@@ -36,6 +36,18 @@ module AggregateBuilder
       def delete_key=(key)
         raise ArgumentError, "delete_key should be a Symbol" unless key.is_a?(Symbol)
         @delete_key = key
+      end
+
+      def logging?
+        @log_type == :logging
+      end
+
+      def exception?
+        @log_type == :exception
+      end
+
+      def ignoring?
+        @log_type == :ignoring
       end
 
       def clone

@@ -26,7 +26,7 @@ require 'aggregate_builder/field_builders/array_of_objects_field_builder'
 require 'aggregate_builder/field_builders/object_field_builder'
 
 require 'aggregate_builder/errors_notifier'
-require 'aggregate_builder/entity_builder'
+require 'aggregate_builder/object_builder'
 require 'aggregate_builder/buildable'
 
 # Metadata

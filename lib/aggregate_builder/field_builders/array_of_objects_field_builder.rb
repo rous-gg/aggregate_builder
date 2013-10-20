@@ -2,12 +2,12 @@ module AggregateBuilder
   class FieldBuilders::ArrayOfObjectsFieldBuilder
     class << self
 
-      def build(field, field_value, entity, config, methods_context)
+      def build(field, field_value, object, config, methods_context)
         check_build_options!(field.build_options)
         array_of_hashes = field_value
         array_of_hashes.each do |hash|
-          unless reject?(hash, entity, field, methods_context)
-            build_or_delete_object(field, hash, entity, config, methods_context)
+          unless reject?(hash, object, field, methods_context)
+            build_or_delete_object(field, hash, object, config, methods_context)
           end
         end
       end
@@ -19,16 +19,16 @@ module AggregateBuilder
         raise ArgumentError, "Builder should be specified in :build_options" unless build_options[:builder]
       end
 
-      def build_or_delete_object(field, hash, entity, config, methods_context)
-        children = entity.send(field.field_name) || []
+      def build_or_delete_object(field, hash, object, config, methods_context)
+        children = object.send(field.field_name) || []
         child = find_child(children, hash, field, config)
 
         if child && delete?(hash, field, config)
-          delete_object_from_entity(entity, child, field)
+          delete_child_from_object(object, child, field)
         elsif child
           update_object(child, hash, field, config)
         else
-          build_new_object(entity, hash, field, config)
+          build_new_object(object, hash, field, config)
         end
       end
 
@@ -42,7 +42,7 @@ module AggregateBuilder
         end
       end
 
-      def reject?(hash, entity, field, methods_context)
+      def reject?(hash, object, field, methods_context)
         if field.build_options[:reject_if]
           methods_context.instance_exec(hash, &field.build_options[:reject_if])
         else
@@ -66,9 +66,9 @@ module AggregateBuilder
         end
       end
 
-      def delete_object_from_entity(entity, child, field)
-        entity.send(field.field_name).delete_if do |child_entity|
-          child_entity == child
+      def delete_child_from_object(object, child, field)
+        object.send(field.field_name).delete_if do |child_object|
+          child_object == child
         end
       end
 
@@ -79,12 +79,12 @@ module AggregateBuilder
         field.build_options[:builder].new.update(child, hash)
       end
 
-      def build_new_object(entity, hash, field, config)
+      def build_new_object(object, hash, field, config)
         primary_key = field.build_options[:primary_key] || config.primary_key
         hash.delete(primary_key) || hash.delete(primary_key.to_s)
 
-        entity.send("#{field.field_name}=", []) unless entity.send(field.field_name)
-        entity.send(field.field_name) << field.build_options[:builder].new.build(hash)
+        object.send("#{field.field_name}=", []) unless object.send(field.field_name)
+        object.send(field.field_name) << field.build_options[:builder].new.build(hash)
       end
 
     end

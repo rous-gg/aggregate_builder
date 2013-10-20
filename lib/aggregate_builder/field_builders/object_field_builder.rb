@@ -2,18 +2,18 @@ module AggregateBuilder
   class FieldBuilders::ObjectFieldBuilder
     class << self
 
-      def build(field, field_value, entity, config, methods_context)
+      def build(field, field_value, object, config, methods_context)
         hash = field_value
-        object = entity.send(field.field_name)
-        if object && delete?(hash, field, config)
-          entity.send("#{field_name}=", nil)
-        elsif object
+        existing_object = object.send(field.field_name)
+        if existing_object && delete?(hash, field, config)
+          object.send("#{field_name}=", nil)
+        elsif existing_object
           primary_key = field.build_options[:primary_key] || config.primary_key
           hash.delete(primary_key) || hash.delete(primary_key.to_s)
 
-          field.build_options[:builder].new.update(object, hash)
+          field.build_options[:builder].new.update(existing_object, hash)
         else
-          entity.send( "#{field.field_name}=", field.build_options[:builder].new.build(hash))
+          object.send("#{field.field_name}=", field.build_options[:builder].new.build(hash))
         end
       end
 
