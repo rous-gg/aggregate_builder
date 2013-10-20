@@ -2,23 +2,30 @@ module AggregateBuilder
   class FieldBuilders::ObjectFieldBuilder
     class << self
 
-      def build(field_name, field_value, entity, build_options, methods_context)
+      def build(field, field_value, entity, config, methods_context)
         hash = field_value
-        object = entity.send(field_name)
-        if object && should_delete?(hash, build_options)
+        object = entity.send(field.field_name)
+        if object && delete?(hash, field, config)
           entity.send("#{field_name}=", nil)
         elsif object
-          build_options[:builder].new.update(object, hash)
+          primary_key = field.build_options[:primary_key] || config.primary_key
+          hash.delete(primary_key) || hash.delete(primary_key.to_s)
+
+          field.build_options[:builder].new.update(object, hash)
         else
-          entity.send( "#{field_name}=", build_options[:builder].new.build(hash))
+          entity.send( "#{field.field_name}=", field.build_options[:builder].new.build(hash))
         end
       end
 
       private
 
-      def should_delete?(hash, build_options)
-        if build_options[:deletable]
-          build_options[:delete_block].call(hash)
+      def delete?(hash, field, config)
+        deletable = field.build_options[:deletable]
+        deletable ||= true
+        if deletable
+          delete_key = field.build_options[:delete_key] || config.delete_key
+          delete_key_processing = field.build_options[:delete_key_processing] || config.delete_key_processing
+          delete_key_processing.call(hash[delete_key])
         end
       end
 

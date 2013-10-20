@@ -32,7 +32,8 @@ module AggregateBuilder
     private
 
     def try_build(entity, field, field_value)
-      field.build(field_value, entity, @methods_context)
+      field_value = field.type_caster.cast(field_value)
+      field.field_builder.build(field, field_value, entity, @build_rules.config, @methods_context)
     rescue Errors::TypeCastingError => e
       @errors_notifier.notify_type_casting_error(e)
     end

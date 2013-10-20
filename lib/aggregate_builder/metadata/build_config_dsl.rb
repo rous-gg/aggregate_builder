@@ -5,12 +5,14 @@ module AggregateBuilder
         @build_config = build_config
       end
 
-      def search_block(&block)
-        @build_config.search_block = block
+      def primary_key(key, &key_processing)
+        @build_config.primary_key = key
+        @build_config.primary_key_processing = key_processing
       end
 
-      def delete_block(&block)
-        @build_config.delete_block = block
+      def delete_key(key, &key_processing)
+        @build_config.delete_key = key
+        @build_config.delete_key_processing = key_processing
       end
 
       def log_type(type)

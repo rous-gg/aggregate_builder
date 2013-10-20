@@ -7,9 +7,7 @@ module AggregateBuilder
 
       attr_reader :field_name
       attr_reader :aliases
-      attr_reader :type
-      attr_reader :value_processor
-      attr_reader :ignore
+      attr_reader :build_options
 
       def initialize(field_name, options = {})
         raise ArgumentError, "You should provide symbolized name for #{field_name}" unless field_name.is_a?(Symbol)
@@ -23,13 +21,6 @@ module AggregateBuilder
       def keys
         [@field_name] + aliases
       end
-
-      def build(field_value, entity, methods_context)
-        field_value = type_caster.cast(field_value)
-        field_builder.build(@field_name, field_value, entity, @build_options, methods_context)
-      end
-
-      private
 
       def type_caster
         if @type_caster.is_a?(Class)
@@ -46,6 +37,8 @@ module AggregateBuilder
           FieldBuilders.field_builder_by_name(@field_builder)
         end
       end
+
+      private
 
       def extract_aliases(options)
         return [] unless options[:aliases]

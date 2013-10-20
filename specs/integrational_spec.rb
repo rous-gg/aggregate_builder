@@ -59,9 +59,9 @@ module IntegrationalTests
       include AggregateBuilder::Buildable
 
       build_config do
-        search_block {|entity, hash| entity.id == hash[:id].to_s.to_i }
+        primary_key(:id) { |key_value| key_value.to_s.to_i }
 
-        delete_block {|hash| ['1', 'true', 'y', 'yes', true].include?(hash[:_destroy]) }
+        delete_key(:_destroy) { |flag| ['1', 'true', 'y', 'yes', true].include?(flag) }
 
         log_type :exception
       end

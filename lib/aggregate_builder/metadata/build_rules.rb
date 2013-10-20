@@ -28,9 +28,6 @@ module AggregateBuilder
         if field
           @fields_collection.delete(field_name)
         end
-        options[:build_options] ||= {}
-        options[:build_options][:search_block] ||= @config.search_block
-        options[:build_options][:delete_block] ||= @config.delete_block
         @fields_collection << Field.new(field_name, options)
       end
 

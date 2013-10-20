@@ -17,14 +17,12 @@ describe "Builders inheritance" do
     include AggregateBuilder::Buildable
 
     build_config do
-      search_block {|entity, hash| entity.name == hash[:name] }
-      delete_block {|entity, hash| hash[:_remove] == true }
-      log_type     :exception
+      primary_key(:name) {|key_value| key_value.to_s }
+      delete_key(:_remove) {|flag| flag == true }
+      log_type :exception
     end
 
     build_rules do
-      field :id, type_caster: :integer, build_options: { immutable: true }
-
       before_build do |entity, attributes|
         attributes[:created_by_id] = 10
       end

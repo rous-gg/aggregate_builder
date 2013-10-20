@@ -133,9 +133,7 @@ describe AggregateBuilder::Buildable do
       include AggregateBuilder::Buildable
 
       build_rules do
-        field :id, type_caster: :integer, build_options: { immutable: true }
         field :manufacturer
-        field :_destroy, type_caster: :boolean, build_options: { ignore: true }
       end
     end
 
@@ -143,7 +141,6 @@ describe AggregateBuilder::Buildable do
       include AggregateBuilder::Buildable
 
       build_rules do
-        field :id, type_caster: :integer, build_options: { immutable: true }
         field :model
       end
     end
@@ -306,16 +303,13 @@ describe AggregateBuilder::Buildable do
         field :first_name
         field :last_name
         field :age, type_caster: :integer
-        field :_destroy, type_caster: :boolean, build_options: { ignore: true }
       end
     end
 
     class PageBuilder
       include AggregateBuilder::Buildable
       build_rules Page do
-        field :number, type_caster: :integer, immutable: true
         field :content
-        field :_destroy, type_caster: :boolean, build_options: { ignore: true }
       end
     end
 
@@ -327,12 +321,14 @@ describe AggregateBuilder::Buildable do
         field :authors, type_caster: :array_of_hashes, field_builder: :array_of_objects, build_options: {
           builder: WriterBuilder,
           deletable: true,
-          search_block: ->(author, attrs){ author.first_name == attrs[:first_name] && author.last_name == attrs[:last_name] },
+          primary_key: [:first_name, :last_name],
+          primary_key_processing: ->(key_value) { [key_value[0].to_s, key_value[1].to_s] }
         }
         field :pages, type_caster: :array_of_hashes, field_builder: :array_of_objects, build_options: {
           deletable: true,
           builder: PageBuilder,
-          search_block: ->(page, attrs){ page.number && page.number == attrs[:number] }
+          primary_key: :number,
+          primary_key_processing: ->(key_value){ key_value.to_s.to_i },
         }
       end
     end
