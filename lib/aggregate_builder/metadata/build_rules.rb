@@ -6,19 +6,16 @@ module AggregateBuilder
       attr_accessor :root_class
       attr_reader   :fields_collection
       attr_reader   :callbacks
-      attr_reader   :config
 
       def initialize
         @fields_collection  = FieldsCollection.new
         @callbacks          = CallbacksCollection.new
-        @config             = Metadata::BuildConfig.new
       end
 
       def clone
         clonned = self.class.new
         clonned.instance_variable_set(:@fields_collection, @fields_collection.clone)
         clonned.instance_variable_set(:@callbacks,         @callbacks.clone)
-        clonned.instance_variable_set(:@config,            @config.clone)
         clonned
       end
 

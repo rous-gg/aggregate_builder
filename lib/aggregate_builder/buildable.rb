@@ -3,27 +3,31 @@ module AggregateBuilder
     extend ActiveSupport::Concern
 
     included do
-      class_attribute :rules
+      class_attribute :builder_rules, :builder_config
     end
 
     module ClassMethods
       def inherited(subclass)
-        if self.rules
-          subclass.rules = self.rules.clone
+        if self.builder_rules
+          subclass.builder_rules = self.builder_rules.clone
+        end
+        if self.builder_config
+          subclass.builder_config = self.builder_config.clone
         end
       end
 
       def build_config(&block)
         raise ArgumentError, "You should provide block" unless block_given?
-        self.rules ||= Metadata::BuildRules.new
-        Metadata::BuildConfigDSL.new(self.rules.config).instance_exec(&block)
+        self.builder_config ||= Metadata::BuildConfig.new
+        Metadata::BuildConfigDSL.new(self.builder_config).instance_exec(&block)
       end
 
       def build_rules(root_class = nil, &block)
         raise ArgumentError, "You should provide block" unless block_given?
-        self.rules ||= Metadata::BuildRules.new
-        self.rules.root_class = root_class ? root_class : root_class_from_builder_name
-        Metadata::BuildRulesDSL.new(self.rules).instance_exec(&block)
+        self.builder_rules ||= Metadata::BuildRules.new
+        self.builder_config ||= Metadata::BuildConfig.new
+        self.builder_rules.root_class = root_class ? root_class : root_class_from_builder_name
+        Metadata::BuildRulesDSL.new(self.builder_rules).instance_exec(&block)
       end
 
       def build_rules_for(root_class, &block)
@@ -47,25 +51,25 @@ module AggregateBuilder
 
     def build(attributes)
       raise ArgumentError, "Attributes should be a hash" unless attributes.is_a?(Hash)
-      raise Errors::UndefinedRootClassError, "Aggregate root class is not defined" if !rules.root_class
+      raise Errors::UndefinedRootClassError, "Aggregate root class is not defined" if !builder_rules.root_class
 
-      object = self.rules.root_class.new
+      object = self.builder_rules.root_class.new
       run_callbacks(object, attributes) do
-        ObjectBuilder.new(rules, self).build(object, attributes)
+        ObjectBuilder.new(self.builder_rules, self.builder_config, self).build(object, attributes)
       end
     end
 
     def update(object, attributes)
       raise ArgumentError, "Attributes should be a hash" unless attributes.is_a?(Hash)
       run_callbacks(object, attributes) do
-        ObjectBuilder.new(rules, self).update(object, attributes)
+        ObjectBuilder.new(self.builder_rules, self.builder_config, self).update(object, attributes)
       end
     end
 
     def patch(object, attributes)
       raise ArgumentError, "Attributes should be a hash" unless attributes.is_a?(Hash)
       run_callbacks(object, attributes) do
-        ObjectBuilder.new(rules, self).patch(object, attributes)
+        ObjectBuilder.new(self.builder_rules, self.builder_config, self).patch(object, attributes)
       end
     end
 
@@ -79,7 +83,7 @@ module AggregateBuilder
     end
 
     def run_callback(type, object, attributes)
-      rules.callbacks.callbacks_by_type(type).each do |callback|
+      builder_rules.callbacks.callbacks_by_type(type).each do |callback|
         if callback.method_name
           send(callback.method_name, object, attributes)
         else
