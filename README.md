@@ -29,8 +29,12 @@ TODO: Write usage instructions here
 5. Create new Pull Request
 
 # TODO
-1. Rename entity to object anywhere
-1. Discuss update, patch methods http://tools.ietf.org/html/rfc6902
+1. Discuss update, patch methods according to JSON PATCH RFC (http://tools.ietf.org/html/rfc6902)
 2. Discuss removing build_options key
-3. Think about search_key, delete_key, removing keys from hash makes inherited_spec fail
+3. Think about search_key, delete_key, removing keys from hash makes inherited_spec fail,
+   propably need to introduce immutable option
+
 4. Add test when deletable is false
+5. Add tests when logging type is :loggin and :ignore
+6. Add test with reject_if
+7. Probably move all field builders specific tests to their own files
