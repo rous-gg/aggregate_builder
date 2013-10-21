@@ -32,8 +32,10 @@ describe "Builders inheritance" do
   class UserBuilder < BaseBuilder
     include AggregateBuilder::Buildable
     build_rules do
-      fields :name, :position
-      field :created_by_id, type_caster: :integer
+      primary_field :id, type: :integer
+      field :name, immutable: true
+      field :position
+      field :created_by_id, type: :integer
     end
   end
 
@@ -41,7 +43,7 @@ describe "Builders inheritance" do
     include AggregateBuilder::Buildable
     build_rules_for Company do
       field :name
-      field :created_by_id, type_caster: :integer
+      field :created_by_id, type: :integer
       objects :users, builder: UserBuilder
     end
   end
@@ -73,6 +75,7 @@ describe "Builders inheritance" do
         { name: 'Bill Smith', position: 'Developer' }
       ]
     })
+    pp company
     company = CompanyBuilder.new.update(company, {
       name: 'John LLC',
       users: [

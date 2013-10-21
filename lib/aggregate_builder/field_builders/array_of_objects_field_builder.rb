@@ -3,13 +3,24 @@ module AggregateBuilder
     class << self
 
       def build(field, field_value, object, config, methods_context)
-        check_build_options!(field.build_options)
+        check_build_options!(field.options)
+        field_value = cast(field_value)
         array_of_hashes = field_value
         array_of_hashes.each do |hash|
           unless reject?(hash, object, field, methods_context)
             build_or_delete_object(field, hash, object, config, methods_context)
           end
         end
+      end
+
+      def cast(value)
+        unless value.is_a?(Array)
+          raise Errors::TypeCastingError, "Expected to be an array, got #{value}"
+        end
+        unless value.all?{|i| i.is_a?(Hash) }
+          raise Errors::TypeCastingError, "Expected to be an array of hashes, got #{value}"
+        end
+        value
       end
 
       private
@@ -33,36 +44,33 @@ module AggregateBuilder
       end
 
       def delete?(hash, field, config)
-        deletable = field.build_options[:deletable]
+        deletable = field.options[:deletable]
         deletable ||= true
         if deletable
-          delete_key = field.build_options[:delete_key] || config.delete_key
-          delete_key_processing = field.build_options[:delete_key_processing] || config.delete_key_processing
-          delete_key_processing.call(hash[delete_key])
+          delete_key = field.options[:delete_key] || config.delete_key
+          if delete_key.is_a?(Symbol)
+            delete_key = ->(hash) { hash[delete_key] == true || hash[delete_key] == 'true' }
+          end
+          delete_key.call(hash)
         end
       end
 
       def reject?(hash, object, field, methods_context)
-        if field.build_options[:reject_if]
-          methods_context.instance_exec(hash, &field.build_options[:reject_if])
+        if field.options[:reject_if]
+          methods_context.instance_exec(hash, &field.options[:reject_if])
         else
           false
         end
       end
 
       def find_child(children, hash, field, config)
-        primary_key = field.build_options[:primary_key] || config.primary_key
-        primary_key_processing = field.build_options[:primary_key_processing] || config.primary_key_processing
+        primary_key = field.options[:primary_key] || config.primary_key
         if primary_key.is_a?(Symbol)
-          object_primary_key_block = ->(object, primary_key) { object.send(primary_key) }
-          hash_primary_key_block   = ->(hash, primary_key) { hash[primary_key] || hash[primary_key] }
-        else
-          object_primary_key_block = ->(object, primary_key) { primary_key.map { |key| object.send(key) } }
-          hash_primary_key_block   = ->(hash, primary_key) { primary_key.map { |key| hash[key] || hash[key.to_s] } }
+          primary_key_symbol = primary_key
+          primary_key = ->(entity, hash) { entity.send(primary_key_symbol) && entity.send(primary_key_symbol) == hash[primary_key_symbol] }
         end
         children.detect do |child|
-          primary_key_value = object_primary_key_block.call(child, primary_key)
-          primary_key_value == primary_key_processing.call(hash_primary_key_block.call(hash, primary_key))
+          primary_key.call(child, hash)
         end
       end
 
@@ -73,18 +81,12 @@ module AggregateBuilder
       end
 
       def update_object(child, hash, field, config)
-        primary_key = field.build_options[:primary_key] || config.primary_key
-        hash.delete(primary_key) || hash.delete(primary_key.to_s)
-
-        field.build_options[:builder].new.update(child, hash)
+        field.options[:builder].new.update(child, hash)
       end
 
       def build_new_object(object, hash, field, config)
-        primary_key = field.build_options[:primary_key] || config.primary_key
-        hash.delete(primary_key) || hash.delete(primary_key.to_s)
-
         object.send("#{field.field_name}=", []) unless object.send(field.field_name)
-        object.send(field.field_name) << field.build_options[:builder].new.build(hash)
+        object.send(field.field_name) << field.options[:builder].new.build(hash)
       end
 
     end

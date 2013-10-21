@@ -1,5 +1,5 @@
 module AggregateBuilder
-  class TypeCasters::IntegerTypeCaster
+  class FieldBuilders::IntegerFieldBuilder < FieldBuilders::PrimitiveFieldBuilder
 
     def self.cast(value)
       if value.is_a?(Integer) || value.nil?

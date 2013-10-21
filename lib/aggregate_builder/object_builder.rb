@@ -20,20 +20,13 @@ module AggregateBuilder
       object
     end
 
-    # implement one day
     def update(object, attributes)
-      build(object, attributes)
-    end
-
-    # implement one day
-    def patch(object, attributes)
       build(object, attributes)
     end
 
     private
 
     def try_build(object, field, field_value)
-      field_value = field.type_caster.cast(field_value)
       field.field_builder.build(field, field_value, object, @config, @methods_context)
     rescue Errors::TypeCastingError => e
       @errors_notifier.notify_type_casting_error(e)

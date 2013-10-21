@@ -18,20 +18,19 @@ module AggregateBuilder
           end
         end
 
+        def primary_field(field_name, options = {})
+          options[:immutable] = true
+          @rules.add_field(field_name, options)
+        end
+
         def object(field_name, options = {})
-          @rules.add_field(field_name, {
-            type_caster: :hash,
-            field_builder: :object,
-            build_options: options
-          })
+          options[:type] = :object
+          @rules.add_field(field_name, options)
         end
 
         def objects(field_name, options = {})
-          @rules.add_field(field_name, {
-            type_caster: :array_of_hashes,
-            field_builder: :array_of_objects,
-            build_options: options
-          })
+          options[:type] = :array_of_objects
+          @rules.add_field(field_name, options)
         end
 
         # Callbacks:

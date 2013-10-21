@@ -1,7 +1,7 @@
 require 'time'
 
 module AggregateBuilder
-  class TypeCasters::TimeTypeCaster
+  class FieldBuilders::TimeFieldBuilder < FieldBuilders::PrimitiveFieldBuilder
 
     def self.cast(value)
       if value.is_a?(Time) || value.nil?

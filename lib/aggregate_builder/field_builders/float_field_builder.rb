@@ -1,5 +1,5 @@
 module AggregateBuilder
-  class TypeCasters::FloatTypeCaster
+  class FieldBuilders::FloatFieldBuilder < FieldBuilders::PrimitiveFieldBuilder
 
     def self.cast(value)
       if value.is_a?(Float) || value.nil?

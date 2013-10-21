@@ -1,5 +1,5 @@
 module AggregateBuilder
-  class TypeCasters::BooleanTypeCaster
+  class FieldBuilders::BooleanFieldBuilder < FieldBuilders::PrimitiveFieldBuilder
 
     def self.cast(value)
       if [TrueClass, FalseClass, NilClass].include?(value.class)

@@ -1,7 +1,7 @@
 require 'date'
 
 module AggregateBuilder
-  class TypeCasters::DateTypeCaster
+  class FieldBuilders::DateFieldBuilder < FieldBuilders::PrimitiveFieldBuilder
 
     def self.cast(value)
       if value.nil?

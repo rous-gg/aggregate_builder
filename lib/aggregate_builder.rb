@@ -8,22 +8,17 @@ require 'active_support/core_ext/string/inflections.rb'
 require 'aggregate_builder/version'
 require 'aggregate_builder/errors'
 
-# Type casters
-require 'aggregate_builder/type_casters'
-require 'aggregate_builder/type_casters/string_type_caster'
-require 'aggregate_builder/type_casters/boolean_type_caster'
-require 'aggregate_builder/type_casters/float_type_caster'
-require 'aggregate_builder/type_casters/date_type_caster'
-require 'aggregate_builder/type_casters/integer_type_caster'
-require 'aggregate_builder/type_casters/time_type_caster'
-require 'aggregate_builder/type_casters/array_of_hashes_type_caster'
-require 'aggregate_builder/type_casters/hash_type_caster'
-
 # Field builders
 require 'aggregate_builder/field_builders'
 require 'aggregate_builder/field_builders/primitive_field_builder'
 require 'aggregate_builder/field_builders/array_of_objects_field_builder'
 require 'aggregate_builder/field_builders/object_field_builder'
+require 'aggregate_builder/field_builders/string_field_builder'
+require 'aggregate_builder/field_builders/boolean_field_builder'
+require 'aggregate_builder/field_builders/float_field_builder'
+require 'aggregate_builder/field_builders/date_field_builder'
+require 'aggregate_builder/field_builders/integer_field_builder'
+require 'aggregate_builder/field_builders/time_field_builder'
 
 require 'aggregate_builder/errors_notifier'
 require 'aggregate_builder/object_builder'

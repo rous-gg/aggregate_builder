@@ -60,12 +60,12 @@ describe AggregateBuilder::Buildable do
 
       build_rules_for Contact do
         fields :first_name, :last_name
-        field  :rating, type_caster: :integer
-        field  :average_rating, type_caster: :float
-        field  :date_of_birth, type_caster: :date
-        field  :type_id, type_caster: :integer
-        field  :is_private, type_caster: :boolean
-        field  :created_at, type_caster: :time
+        field  :rating, type: :integer
+        field  :average_rating, type: :float
+        field  :date_of_birth, type: :date
+        field  :type_id, type: :integer
+        field  :is_private, type: :boolean
+        field  :created_at, type: :time
         field  :company_name
       end
     end
@@ -133,6 +133,7 @@ describe AggregateBuilder::Buildable do
       include AggregateBuilder::Buildable
 
       build_rules do
+        primary_field :id, type: :integer
         field :manufacturer
       end
     end
@@ -141,6 +142,7 @@ describe AggregateBuilder::Buildable do
       include AggregateBuilder::Buildable
 
       build_rules do
+        primary_field :id, type: :integer
         field :model
       end
     end
@@ -151,15 +153,12 @@ describe AggregateBuilder::Buildable do
       build_rules do
         field :name
 
-        field :wheels, type_caster: :array_of_hashes, field_builder: :array_of_objects, build_options: {
-          builder: WheelBuilder,
-          reject_if: ->(attrs){ attrs[:manufacturer].nil? },
-          deletable: true
-        }
+        field :wheels, type: :array_of_objects,
+                       builder: WheelBuilder,
+                       reject_if: ->(attrs){ attrs[:manufacturer].nil? },
+                       deletable: true
 
-        field :engine, type_caster: :hash, field_builder: :object, build_options: {
-          builder: EngineBuilder
-        }
+        field :engine, type: :object, builder: EngineBuilder
       end
     end
 
@@ -303,13 +302,14 @@ describe AggregateBuilder::Buildable do
       build_rules Writer do
         field :first_name
         field :last_name
-        field :age, type_caster: :integer
+        field :age, type: :integer
       end
     end
 
     class PageBuilder
       include AggregateBuilder::Buildable
       build_rules Page do
+        primary_field :number, type: :integer
         field :content
       end
     end
@@ -319,18 +319,17 @@ describe AggregateBuilder::Buildable do
       include AggregateBuilder::Buildable
       build_rules Book do
         field :name
-        field :authors, type_caster: :array_of_hashes, field_builder: :array_of_objects, build_options: {
+        field :authors, type: :array_of_objects,
           builder: WriterBuilder,
           deletable: true,
-          primary_key: [:first_name, :last_name],
-          primary_key_processing: ->(key_value) { [key_value[0].to_s, key_value[1].to_s] }
-        }
-        field :pages, type_caster: :array_of_hashes, field_builder: :array_of_objects, build_options: {
+          primary_key: ->(entity, hash) {
+            entity.first_name == hash[:first_name] && entity.last_name == hash[:last_name]
+          }
+
+        field :pages, type: :array_of_objects,
           deletable: true,
           builder: PageBuilder,
-          primary_key: :number,
-          primary_key_processing: ->(key_value){ key_value.to_s.to_i },
-        }
+          primary_key: :number
       end
     end
 
@@ -348,7 +347,7 @@ describe AggregateBuilder::Buildable do
         ]
       })
 
-      # set search keys
+      # set primary keys
       book.pages[0].number = 1
       book.pages[1].number = 2
 

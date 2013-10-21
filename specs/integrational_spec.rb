@@ -38,10 +38,9 @@ module IntegrationalTests
       include AggregateBuilder::Buildable
 
       build_rules Email do
-        field :_destroy, type_caster: :boolean, build_options: { ignore: true }
-        field :id, type_caster: :integer, build_options: { immutable: true }
+        primary_field :id, type: :integer
         field :email
-        field :type, type_caster: :integer
+        field :type, type: :integer
       end
     end
 
@@ -49,8 +48,7 @@ module IntegrationalTests
       include AggregateBuilder::Buildable
 
       build_rules Address do
-        field :_destroy, type_caster: :boolean, build_options: { ignore: true }
-        field :id, type_caster: :integer, build_options: { immutable: true }
+        primary_field :id, type: :integer
         fields :street, :city, :postal_code, :state
       end
     end
@@ -59,33 +57,29 @@ module IntegrationalTests
       include AggregateBuilder::Buildable
 
       build_config do
-        primary_key(:id) { |key_value| key_value.to_s.to_i }
+        primary_key ->(entity, hash) { entity.id == hash[:id] }
 
-        delete_key(:_destroy) { |flag| ['1', 'true', 'y', 'yes', true].include?(flag) }
+        delete_key ->(hash) { ['1', 'true', 'y', 'yes', true].include?(hash[:_destroy]) }
 
         log_type :exception
       end
 
       build_rules_for Contact do
         fields :first_name, :last_name
-        field  :rating, type_caster: :integer
-        field  :average_rating, type_caster: :float
-        field  :date_of_birth, type_caster: :date
-        field  :type_id, type_caster: :integer
-        field  :is_private, type_caster: :boolean
-        field  :created_at, type_caster: :time
+        field  :rating, type: :integer
+        field  :average_rating, type: :float
+        field  :date_of_birth, type: :date
+        field  :type_id, type: :integer
+        field  :is_private, type: :boolean
+        field  :created_at, type: :time
         field  :company_name
 
-        field :address, type_caster: :hash, field_builder: :object, build_options: {
-          builder: AddressBuilder,
-          deletable: true
-        }
+        field :address, type: :object, builder: AddressBuilder, deletable: true
 
-        field :emails, type_caster: :array_of_hashes, field_builder: :array_of_objects, build_options: {
+        field :emails, type: :array_of_objects,
           builder: EmailBuilder,
           reject_if: ->(attributes) { attributes[:reject] == true },
           deletable: true
-        }
 
         before_build :before_build_callback
 
