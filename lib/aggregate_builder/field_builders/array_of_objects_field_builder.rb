@@ -27,7 +27,8 @@ module AggregateBuilder
 
       def check_build_options!(build_options)
         build_options ||= {}
-        raise ArgumentError, "Builder should be specified in :build_options" unless build_options[:builder]
+        raise ArgumentError, "Builder should be specified" unless build_options[:builder]
+        raise ArgumentError, "You should provide class or Symbol" unless build_options[:builder].is_a?(Class) || build_options[:builder].is_a?(Symbol)
       end
 
       def build_or_delete_object(field, hash, object, config, methods_context)
@@ -37,9 +38,9 @@ module AggregateBuilder
         if child && delete?(hash, field, config)
           delete_child_from_object(object, child, field)
         elsif child
-          update_object(child, hash, field, config)
+          update_object(child, hash, field, config, methods_context)
         else
-          build_new_object(object, hash, field, config)
+          build_new_object(object, hash, field, config, methods_context)
         end
       end
 
@@ -80,15 +81,22 @@ module AggregateBuilder
         end
       end
 
-      def update_object(child, hash, field, config)
-        field.options[:builder].new.update(child, hash)
+      def update_object(child, hash, field, config, methods_context)
+        builder(field, methods_context).update(child, hash)
       end
 
-      def build_new_object(object, hash, field, config)
+      def build_new_object(object, hash, field, config, methods_context)
         object.send("#{field.field_name}=", []) unless object.send(field.field_name)
-        object.send(field.field_name) << field.options[:builder].new.build(hash)
+        object.send(field.field_name) << builder(field, methods_context).build(hash)
       end
 
+      def builder(field, methods_context)
+        if field.options[:builder].is_a?(Symbol)
+          methods_context.send(field.options[:builder])
+        elsif field.options[:builder].is_a?(Class)
+          field.options[:builder].new
+        end
+      end
     end
   end
 end
