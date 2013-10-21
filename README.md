@@ -29,12 +29,8 @@ TODO: Write usage instructions here
 5. Create new Pull Request
 
 # TODO
-1. Discuss update, patch methods according to JSON PATCH RFC (http://tools.ietf.org/html/rfc6902)
-2. Discuss removing build_options key
-3. Think about search_key, delete_key, removing keys from hash makes inherited_spec fail,
-   propably need to introduce immutable option
-
-4. Add test when deletable is false
-5. Add tests when logging type is :loggin and :ignore
-6. Add test with reject_if
-7. Probably move all field builders specific tests to their own files
+1. Add test when deletable is false
+2. Add tests when logging type is :loggin and :ignore
+3. Add test with reject_if
+4. Probably move all field builders specific tests to their own files
+5. Write tests for missing/unexpected options
