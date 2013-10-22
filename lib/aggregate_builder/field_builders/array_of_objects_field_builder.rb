@@ -4,7 +4,7 @@ module AggregateBuilder
 
       def build(field, field_value, object, config, methods_context)
         check_build_options!(field.options)
-        field_value = cast(field_value)
+        field_value = cast(field, field_value)
         array_of_hashes = field_value
         array_of_hashes.each do |hash|
           unless reject?(hash, object, field, methods_context)
@@ -13,12 +13,12 @@ module AggregateBuilder
         end
       end
 
-      def cast(value)
+      def cast(field, value)
         unless value.is_a?(Array)
-          raise Errors::TypeCastingError, "Expected to be an array, got #{value}"
+          raise Errors::TypeCastingError, "Expected to be an array, got #{value.inspect} for #{field.field_name}"
         end
         unless value.all?{|i| i.is_a?(Hash) }
-          raise Errors::TypeCastingError, "Expected to be an array of hashes, got #{value}"
+          raise Errors::TypeCastingError, "Expected to be an array of hashes, got #{value.inspect} for #{field.field_name}"
         end
         value
       end

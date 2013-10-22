@@ -1,7 +1,7 @@
 module AggregateBuilder
   class FieldBuilders::BooleanFieldBuilder < FieldBuilders::PrimitiveFieldBuilder
 
-    def self.cast(value)
+    def self.cast(field, value)
       if [TrueClass, FalseClass, NilClass].include?(value.class)
         value
       elsif value.is_a?(Integer)
@@ -12,10 +12,10 @@ module AggregateBuilder
         elsif ['n', 'no', '0'].include?(value)
           false
         else
-          raise Errors::TypeCastingError, "Expected to be a boolean value, got #{value}"
+          raise Errors::TypeCastingError, "Expected to be a boolean value, got #{value.inspect} for #{field.field_name}"
         end
       else
-        raise Errors::TypeCastingError, "Expected to be a boolean value, got #{value}"
+        raise Errors::TypeCastingError, "Expected to be a boolean value, got #{value.inspect} for #{field.field_name}"
       end
     end
 
