@@ -52,7 +52,7 @@ describe AggregateBuilder::Buildable do
   context "Building objects" do
     class Contact
       attr_accessor :id, :first_name, :last_name, :type_id, :date_of_birth,
-                    :is_private, :rating, :average_rating, :created_at, :company_name
+                    :is_private, :rating, :average_rating, :created_at, :company_name, :colors
     end
 
     class ContactBuilder
@@ -60,13 +60,14 @@ describe AggregateBuilder::Buildable do
 
       build_rules_for Contact do
         fields :first_name, :last_name
-        field  :rating, type: :integer
+        field  :rating,         type: :integer
         field  :average_rating, type: :float
-        field  :date_of_birth, type: :date
-        field  :type_id, type: :integer
-        field  :is_private, type: :boolean
-        field  :created_at, type: :time
+        field  :date_of_birth,  type: :date
+        field  :type_id,        type: :integer
+        field  :is_private,     type: :boolean
+        field  :created_at,     type: :time
         field  :company_name
+        field  :colors,         type: :array
       end
     end
 
@@ -80,7 +81,8 @@ describe AggregateBuilder::Buildable do
         type_id: 3,
         is_private: true,
         created_at: "2013-09-30 08:58:28 +0400",
-        company_name: "John Doe Inc."
+        company_name: "John Doe Inc.",
+        colors: ['red', 'black'],
       })
 
       contact.first_name.should == 'John'
@@ -92,6 +94,7 @@ describe AggregateBuilder::Buildable do
       contact.is_private.should == true
       contact.created_at.should == Time.new("2013-09-30 08:58:28 +0400")
       contact.company_name.should == 'John Doe Inc.'
+      contact.colors.should == ['red', 'black']
     end
 
     it "should update existing built object" do
