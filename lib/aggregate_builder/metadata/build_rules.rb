@@ -1,8 +1,6 @@
 module AggregateBuilder
   module Metadata
     class BuildRules
-      CALLBACKS = [:before, :after]
-
       attr_accessor :root_class
       attr_reader   :fields_collection
       attr_reader   :callbacks
@@ -32,12 +30,11 @@ module AggregateBuilder
         @fields_collection << Field.new(field_name, options)
       end
 
-      def add_callback(callback_type, method_name = nil, &block)
+      def add_callback(callback_name, method_name = nil, &block)
         if !method_name.nil? && !method_name.is_a?(Symbol)
           raise ArgumentError, "Callback method name should be a symbol" unless method_name.is_a?(Symbol)
         end
-        raise ArgumentError, "Unsupported callback type" if !CALLBACKS.include?(callback_type)
-        @callbacks.add(callback_type, method_name, &block)
+        @callbacks.add(callback_name, method_name, &block)
       end
 
     end

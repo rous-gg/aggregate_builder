@@ -54,36 +54,30 @@ module AggregateBuilder
       raise Errors::UndefinedRootClassError, "Aggregate root class is not defined" if !builder_rules.root_class
 
       object = self.builder_rules.root_class.new
-      run_callbacks(object, attributes) do
-        ObjectBuilder.new(self.builder_rules, self.builder_config, self).build(object, attributes)
-      end
+      run_callbacks([:before_change, :before_build], object, attributes)
+      ObjectBuilder.new(self.builder_rules, self.builder_config, self).build(object, attributes)
+      run_callbacks([:after_change, :after_build], object, attributes)
+      object
     end
 
     def update(object, attributes)
       raise ArgumentError, "Attributes should be a hash" unless attributes.is_a?(Hash)
-      run_callbacks(object, attributes) do
-        ObjectBuilder.new(self.builder_rules, self.builder_config, self).update(object, attributes)
-      end
-    end
-
-    def patch(object, attributes)
-      raise ArgumentError, "Attributes should be a hash" unless attributes.is_a?(Hash)
-      run_callbacks(object, attributes) do
-        ObjectBuilder.new(self.builder_rules, self.builder_config, self).patch(object, attributes)
-      end
+      run_callbacks([:before_change, :before_update], object, attributes)
+      ObjectBuilder.new(self.builder_rules, self.builder_config, self).update(object, attributes)
+      run_callbacks([:after_change, :after_update], object, attributes)
+      object
     end
 
     private
 
-    def run_callbacks(object, attributes, &block)
-      run_callback(:before, object, attributes)
-      object = block.call
-      run_callback(:after, object, attributes)
-      object
+    def run_callbacks(callback_names, object, attributes, &block)
+      callback_names.each do |callback_name|
+        run_callback(callback_name, object, attributes)
+      end
     end
 
-    def run_callback(type, object, attributes)
-      builder_rules.callbacks.callbacks_by_type(type).each do |callback|
+    def run_callback(callback_name, object, attributes)
+      builder_rules.callbacks.callbacks_by_name(callback_name).each do |callback|
         if callback.method_name
           send(callback.method_name, object, attributes)
         else

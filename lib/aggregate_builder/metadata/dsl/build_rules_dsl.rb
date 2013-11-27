@@ -34,12 +34,28 @@ module AggregateBuilder
         end
 
         # Callbacks:
+        def before_change(method_name = nil, &block)
+          @rules.add_callback(:before_change, method_name, &block)
+        end
+
         def before_build(method_name = nil, &block)
-          @rules.add_callback(:before, method_name, &block)
+          @rules.add_callback(:before_build, method_name, &block)
+        end
+
+        def before_update(method_name = nil, &block)
+          @rules.add_callback(:before_update, method_name, &block)
         end
 
         def after_build(method_name = nil, &block)
-          @rules.add_callback(:after, method_name, &block)
+          @rules.add_callback(:after_build, method_name, &block)
+        end
+
+        def after_update(method_name = nil, &block)
+          @rules.add_callback(:after_update, method_name, &block)
+        end
+
+        def after_change(method_name = nil, &block)
+          @rules.add_callback(:after_change, method_name, &block)
         end
 
         private

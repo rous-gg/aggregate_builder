@@ -15,14 +15,14 @@ module AggregateBuilder
         clonned
       end
 
-      def add(callback_type, method_name, &block)
-        @callbacks[callback_type] ||= []
-        @callbacks[callback_type] << Callback.new(method_name, &block)
+      def add(callback_name, method_name, &block)
+        @callbacks[callback_name] ||= []
+        @callbacks[callback_name] << Callback.new(method_name, &block)
       end
 
-      def callbacks_by_type(callback_type)
-        if !@callbacks[callback_type].nil?
-          @callbacks[callback_type]
+      def callbacks_by_name(callback_name)
+        if !@callbacks[callback_name].nil?
+          @callbacks[callback_name]
         else
           []
         end
