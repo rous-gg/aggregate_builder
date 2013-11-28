@@ -53,7 +53,7 @@ describe AggregateBuilder::Buildable do
     class Contact
       attr_accessor :id, :first_name, :last_name, :type_id, :date_of_birth,
                     :is_private, :rating, :average_rating, :created_at, :company_name,
-                    :colors, :settings
+                    :colors, :settings, :status
     end
 
     class ContactBuilder
@@ -70,6 +70,7 @@ describe AggregateBuilder::Buildable do
         field  :company_name
         field  :colors,         type: :array
         field  :settings,       type: :hash
+        field  :status,         type: :symbol
       end
     end
 
@@ -85,7 +86,8 @@ describe AggregateBuilder::Buildable do
         created_at: "2013-09-30 08:58:28 +0400",
         company_name: "John Doe Inc.",
         colors: ['red', 'black'],
-        settings: { car: 'mazda' }
+        settings: { car: 'mazda' },
+        status: :new,
       })
 
       contact.first_name.should == 'John'
@@ -99,6 +101,7 @@ describe AggregateBuilder::Buildable do
       contact.company_name.should == 'John Doe Inc.'
       contact.colors.should == ['red', 'black']
       contact.settings.should == { car: 'mazda' }
+      contact.status.should == :new
     end
 
     it "should update existing built object" do
