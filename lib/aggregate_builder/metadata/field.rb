@@ -20,11 +20,19 @@ module AggregateBuilder
         [@field_name] + aliases
       end
 
-      def field_builder
+      def field_builder(context)
         if @field_builder.is_a?(Class)
           @field_builder
         else
-          FieldBuilders.field_builder_by_name(@field_builder)
+          if field_builder = FieldBuilders.field_builder_by_name(@field_builder)
+            field_builder
+          else
+            if context.respond_to?(@field_builder)
+              context.send(@field_builder)
+            else
+              raise ArgumentError, "Field builder with name :#{@field_builder} doesn't exist"
+            end
+          end
         end
       end
 
