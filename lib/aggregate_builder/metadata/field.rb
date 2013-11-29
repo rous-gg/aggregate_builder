@@ -12,7 +12,7 @@ module AggregateBuilder
         raise ArgumentError, "You should provide symbolized name for #{field_name}" unless field_name.is_a?(Symbol)
         @field_name     = field_name
         @aliases        = extract_aliases(options)
-        @field_builder  = options[:type] || DEFAULT_FIELD_BUILDER
+        @field_builder  = options[:type] || options[:field_builder] || DEFAULT_FIELD_BUILDER
         @options        = options
       end
 
