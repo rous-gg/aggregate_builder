@@ -14,6 +14,8 @@ module AggregateBuilder
         else
           raise Errors::TypeCastingError, "Expected to be a boolean value, got #{value.inspect} for #{field_name}"
         end
+      elsif value.nil?
+        raise Errors::TypeCastingError, "#{field_name} can't be nil"
       else
         raise Errors::TypeCastingError, "Expected to be a boolean value, got #{value.inspect} for #{field_name}"
       end

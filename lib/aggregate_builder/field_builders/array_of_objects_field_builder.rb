@@ -14,6 +14,9 @@ module AggregateBuilder
       end
 
       def cast(field_name, value)
+        if value.nil?
+          raise Errors::TypeCastingError, "#{field_name} can't be nil"
+        end
         unless value.is_a?(Array)
           raise Errors::TypeCastingError, "Expected to be an array, got #{value.inspect} for #{field_name}"
         end

@@ -15,7 +15,9 @@ module AggregateBuilder
       end
 
       def cast(field_name, value)
-        unless value.is_a?(Hash)
+        if value.nil?
+          raise Errors::TypeCastingError, "#{field_name} can't be nil"
+        elsif !value.is_a?(Hash)
           raise Errors::TypeCastingError, "Expected to be a hash, got #{value.inspect} for #{field_name}"
         end
         value
