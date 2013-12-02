@@ -21,7 +21,7 @@ require 'aggregate_builder/field_builders/boolean_field_builder'
 require 'aggregate_builder/field_builders/float_field_builder'
 require 'aggregate_builder/field_builders/date_field_builder'
 require 'aggregate_builder/field_builders/integer_field_builder'
-require 'aggregate_builder/field_builders/time_field_builder'
+require 'aggregate_builder/field_builders/datetime_field_builder'
 
 require 'aggregate_builder/errors_notifier'
 require 'aggregate_builder/object_builder'

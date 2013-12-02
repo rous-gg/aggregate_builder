@@ -3,7 +3,7 @@ module AggregateBuilder
     class << self
 
       def build(field, field_value, object, config, methods_context)
-        hash = cast(field, field_value)
+        hash = cast(field.field_name, field_value)
         existing_object = object.send(field.field_name)
         if existing_object && delete?(hash, field, config)
           object.send("#{field_name}=", nil)
@@ -14,9 +14,9 @@ module AggregateBuilder
         end
       end
 
-      def cast(field, value)
+      def cast(field_name, value)
         unless value.is_a?(Hash)
-          raise Errors::TypeCastingError, "Expected to be a hash, got #{value.inspect} for #{field.field_name}"
+          raise Errors::TypeCastingError, "Expected to be a hash, got #{value.inspect} for #{field_name}"
         end
         value
       end

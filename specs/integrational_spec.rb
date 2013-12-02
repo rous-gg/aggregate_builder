@@ -71,7 +71,7 @@ module IntegrationalTests
         field  :date_of_birth, type: :date
         field  :type_id, type: :integer
         field  :is_private, type: :boolean
-        field  :created_at, type: :time
+        field  :created_at, type: :datetime
         field  :company_name
 
         field :address, type: :object, builder: AddressBuilder, deletable: true
@@ -133,7 +133,7 @@ module IntegrationalTests
     its(:date_of_birth)                { should == Date.parse('12/09/1965') }
     its(:type_id)                      { should == 3 }
     its(:is_private)                   { should == true }
-    its(:created_at)                   { should == Time.new("2013-09-30 08:58:28 +0400") }
+    its(:created_at)                   { should == DateTime.parse("2013-09-30 08:58:28 +0400") }
     its(:company_name)                 { should == 'John Doe Inc.' }
     its(:before_build_value)           { should == 'BEFORE' }
     its(:after_build_value)            { should == 'AFTER' }

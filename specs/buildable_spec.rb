@@ -66,7 +66,7 @@ describe AggregateBuilder::Buildable do
         field  :date_of_birth,  type: :date
         field  :type_id,        type: :integer
         field  :is_private,     type: :boolean
-        field  :created_at,     type: :time
+        field  :created_at,     type: :datetime
         field  :company_name
         field  :colors,         type: :array
         field  :settings,       type: :hash
@@ -97,7 +97,7 @@ describe AggregateBuilder::Buildable do
       contact.date_of_birth.should == Date.parse('12/09/1965')
       contact.type_id.should == 3
       contact.is_private.should == true
-      contact.created_at.should == Time.new("2013-09-30 08:58:28 +0400")
+      contact.created_at.should == DateTime.parse("2013-09-30 08:58:28 +0400")
       contact.company_name.should == 'John Doe Inc.'
       contact.colors.should == ['red', 'black']
       contact.settings.should == { car: 'mazda' }
