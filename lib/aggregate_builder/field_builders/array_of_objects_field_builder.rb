@@ -5,12 +5,16 @@ module AggregateBuilder
       def build(field, field_value, object, config, methods_context)
         check_build_options!(field.options)
         field_value = cast(field.field_name, field_value)
-        array_of_hashes = field_value
-        array_of_hashes.each do |hash|
-          unless reject?(hash, object, field, methods_context)
-            build_or_delete_object(field, hash, object, config, methods_context)
-          end
-        end
+        array_of_attributes = field_value
+
+        object.send("#{field.field_name}=", []) unless object.send(field.field_name)
+
+        delete_rejected_attributes!(array_of_attributes, field, methods_context)
+        delete_marked_children!(array_of_attributes, object, field, config, methods_context)
+        update_existing_children!(array_of_attributes, object, field, config, methods_context)
+        build_new_children(array_of_attributes, object, field, config, methods_context)
+
+        object
       end
 
       def cast(field_name, value)
@@ -34,16 +38,46 @@ module AggregateBuilder
         raise ArgumentError, "You should provide class or Symbol" unless build_options[:builder].is_a?(Class) || build_options[:builder].is_a?(Symbol)
       end
 
-      def build_or_delete_object(field, hash, object, config, methods_context)
-        children = object.send(field.field_name) || []
-        child = find_child(children, hash, field, config)
+      def delete_rejected_attributes!(array_of_attributes, field, methods_context)
+        array_of_attributes.delete_if do |attributes|
+          reject?(attributes, field, methods_context)
+        end
+      end
 
-        if child && delete?(hash, field, config)
-          delete_child_from_object(object, child, field)
-        elsif child
-          update_object(child, hash, field, config, methods_context)
+      def delete_marked_children!(array_of_attributes, object, field, config, methods_context)
+        children = object.send(field.field_name)
+        array_of_attributes.delete_if do |attributes|
+          next unless delete?(attributes, field, config)
+          child = find_child(children, attributes, field, config)
+          child ? delete_child_from_object(object, child, field) : false
+        end
+      end
+
+      def update_existing_children!(array_of_attributes, object, field, config, methods_context)
+        children = object.send(field.field_name)
+        to_update = {}
+        array_of_attributes.delete_if do |attributes|
+          child = find_child(children, attributes, field, config)
+          child ? to_update[child] = attributes : false
+        end
+        builder = get_builder(field, methods_context)
+        if builder.respond_to?(:update_all)
+          builder.update_all(children, to_update.values)
         else
-          build_new_object(object, hash, field, config, methods_context)
+          to_update.each do |child, attributes|
+            builder.update(child, attributes)
+          end
+        end
+      end
+
+      def build_new_children(array_of_attributes, object, field, config, methods_context)
+        builder = get_builder(field, methods_context)
+        if builder.respond_to?(:build_all)
+         object.send("#{field.field_name}=", object.send(field.field_name) + builder.build_all(array_of_attributes))
+        else
+          array_of_attributes.each do |attrs|
+            object.send(field.field_name) << builder.build(attrs)
+          end
         end
       end
 
@@ -59,7 +93,7 @@ module AggregateBuilder
         end
       end
 
-      def reject?(hash, object, field, methods_context)
+      def reject?(hash, field, methods_context)
         if field.options[:reject_if]
           methods_context.instance_exec(hash, &field.options[:reject_if])
         else
@@ -82,18 +116,10 @@ module AggregateBuilder
         object.send(field.field_name).delete_if do |child_object|
           child_object == child
         end
+        true
       end
 
-      def update_object(child, hash, field, config, methods_context)
-        builder(field, methods_context).update(child, hash)
-      end
-
-      def build_new_object(object, hash, field, config, methods_context)
-        object.send("#{field.field_name}=", []) unless object.send(field.field_name)
-        object.send(field.field_name) << builder(field, methods_context).build(hash)
-      end
-
-      def builder(field, methods_context)
+      def get_builder(field, methods_context)
         if field.options[:builder].is_a?(Symbol)
           methods_context.send(field.options[:builder])
         elsif field.options[:builder].is_a?(Class)

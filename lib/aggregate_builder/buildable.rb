@@ -49,6 +49,9 @@ module AggregateBuilder
       end
     end
 
+    # Builds object
+    # @param [Hash] attributes object's attributes
+    # @return [Object] new object
     def build(attributes)
       raise ArgumentError, "Attributes should be a hash" unless attributes.is_a?(Hash)
       raise Errors::UndefinedRootClassError, "Aggregate root class is not defined" if !builder_rules.root_class
@@ -60,6 +63,19 @@ module AggregateBuilder
       object
     end
 
+    # Builds array of objects
+    # @param [Array(Hash)] array_of_attributes array of attributes
+    # @return [Array(Object)] new objects
+    def build_all(array_of_attributes)
+      array_of_attributes.map do |attributes|
+        build(attributes)
+      end
+    end
+
+    # Updates the given object with new attributes
+    # @param [Object] object some object
+    # @param [Hash] attributes new attributes
+    # @return [Object] updated object
     def update(object, attributes)
       raise ArgumentError, "Attributes should be a hash" unless attributes.is_a?(Hash)
       run_callbacks([:before_change, :before_update], object, attributes)
