@@ -24,6 +24,7 @@ require 'aggregate_builder/field_builders/integer_field_builder'
 require 'aggregate_builder/field_builders/datetime_field_builder'
 require 'aggregate_builder/field_builders/url_field_builder'
 require 'aggregate_builder/field_builders/email_field_builder'
+require 'aggregate_builder/field_builders/time_field_builder'
 
 require 'aggregate_builder/errors_notifier'
 require 'aggregate_builder/object_builder'
