@@ -53,7 +53,7 @@ describe AggregateBuilder::Buildable do
     class Contact
       attr_accessor :id, :first_name, :last_name, :type_id, :date_of_birth,
                     :is_private, :rating, :average_rating, :created_at, :company_name,
-                    :colors, :settings, :status, :website, :email, :time
+                    :colors, :settings, :status, :website, :email, :time, :tags
     end
 
     class ContactBuilder
@@ -74,6 +74,7 @@ describe AggregateBuilder::Buildable do
         field  :website,        type: :url
         field  :email,          type: :email
         field  :time,           type: :time
+        field :tags,            type: :array_of_strings
       end
     end
 
@@ -94,6 +95,7 @@ describe AggregateBuilder::Buildable do
         website: "example.com",
         email: "test@example.com",
         time: "23:59:12",
+        tags: ["food", "drink"],
       })
 
       contact.first_name.should == 'John'
@@ -111,6 +113,7 @@ describe AggregateBuilder::Buildable do
       contact.website.should == "example.com"
       contact.email.should == "test@example.com"
       contact.time.should == "23:59:12"
+      contact.tags.should == ["food", "drink"]
     end
 
     it "should update existing built object" do
