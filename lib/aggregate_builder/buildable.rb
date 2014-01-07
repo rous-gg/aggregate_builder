@@ -59,7 +59,7 @@ module AggregateBuilder
       object = self.builder_rules.root_class.new
       run_callbacks([:before_change, :before_build], object, attributes)
       ObjectBuilder.new(self.builder_rules, self.builder_config, self).build(object, attributes)
-      run_callbacks([:after_change, :after_build], object, attributes)
+      run_callbacks([:after_build, :after_change], object, attributes)
       object
     end
 
@@ -80,7 +80,7 @@ module AggregateBuilder
       raise ArgumentError, "Attributes should be a hash" unless attributes.is_a?(Hash)
       run_callbacks([:before_change, :before_update], object, attributes)
       ObjectBuilder.new(self.builder_rules, self.builder_config, self).update(object, attributes)
-      run_callbacks([:after_change, :after_update], object, attributes)
+      run_callbacks([:after_update, :after_change], object, attributes)
       object
     end
 
