@@ -8,9 +8,12 @@ module AggregateBuilder
         if existing_object && delete?(hash, field, config)
           object.send("#{field_name}=", nil)
         elsif existing_object
-          field.options[:builder].new.update(existing_object, hash)
+          get_builder(field, methods_context).update(existing_object, hash)
         else
-          object.send("#{field.field_name}=", field.options[:builder].new.build(hash))
+          object.send(
+            "#{field.field_name}=",
+            get_builder(field, methods_context).build(hash)
+          )
         end
       end
 
@@ -34,6 +37,14 @@ module AggregateBuilder
             delete_key = ->(hash) { hash[delete_key] == true || hash[delete_key] == 'true' }
           end
           delete_key.call(hash)
+        end
+      end
+
+      def get_builder(field, methods_context)
+        if field.options[:builder].is_a?(Symbol)
+          methods_context.send(field.options[:builder])
+        elsif field.options[:builder].is_a?(Class)
+          field.options[:builder].new
         end
       end
 
