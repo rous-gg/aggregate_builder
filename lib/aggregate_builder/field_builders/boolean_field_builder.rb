@@ -7,9 +7,9 @@ module AggregateBuilder
       elsif value.is_a?(Integer)
         value == 0 ? false : true
       elsif value.is_a?(String)
-        if ['true', 'y', 'yes', '1'].include?(value.downcase)
+        if ['true', 'y', 'yes', '1', 'on'].include?(value.downcase)
           true
-        elsif ['false', 'n', 'no', '0'].include?(value)
+        elsif ['false', 'n', 'no', '0', 'off'].include?(value)
           false
         else
           raise Errors::TypeCastingError, "Expected to be a boolean value, got #{value.inspect} for #{field_name}"
