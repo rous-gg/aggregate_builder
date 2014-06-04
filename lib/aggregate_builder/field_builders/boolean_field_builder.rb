@@ -2,7 +2,7 @@ module AggregateBuilder
   class FieldBuilders::BooleanFieldBuilder < FieldBuilders::PrimitiveFieldBuilder
 
     def self.cast(field_name, value)
-      if [TrueClass, FalseClass, NilClass].include?(value.class)
+      if [TrueClass, FalseClass].include?(value.class)
         value
       elsif value.is_a?(Integer)
         value == 0 ? false : true
