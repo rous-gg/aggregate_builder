@@ -1,5 +1,5 @@
 module AggregateBuilder
-  class FieldBuilders::ArrayOfStringsFieldBuilder < FieldBuilders::PrimitiveFieldBuilder
+  class FieldBuilders::ArrayOfStringsFieldBuilder < FieldBuilders::ArrayFieldBuilder
 
     def self.cast(field_name, value)
       if value.is_a?(Array)
